@@ -83,11 +83,11 @@ window.ROADMAP = {
       }
     },
     {
-      status: "next",
+      status: "paused",
       title: { it: "Architettura frontend", en: "Frontend architecture" },
       goal: {
-        it: "Decidere struttura e librerie del frontend React e prepararne lo scheletro.",
-        en: "Decide the React frontend structure and libraries and build its skeleton."
+        it: "Decidere struttura e librerie del frontend React e prepararne lo scheletro. In pausa per scelta: per ora si lavora sul backend.",
+        en: "Decide the React frontend structure and libraries and build its skeleton. On hold by choice: we focus on the backend for now."
       },
       tasks: [
         { it: "Proposta di architettura: routing, chiamate all'API, gestione dello stato, componenti grafici, grafici delle candele", en: "Architecture proposal: routing, API calls, state management, UI components, candle charts" },
@@ -102,6 +102,7 @@ window.ROADMAP = {
       }
     },
     {
+      status: "next",
       title: { it: "Dati di mercato", en: "Market data" },
       goal: {
         it: "Avere nel database le candele storiche e aggiornate dei mercati che useremo, per tutti e tre i blocchi di timeframe.",
