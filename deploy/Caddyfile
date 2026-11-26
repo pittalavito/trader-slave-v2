@@ -1,0 +1,15 @@
+# DOMAIN arriva dal file .env. Con un dominio vero Caddy ottiene da solo il certificato HTTPS.
+# Senza dominio (DOMAIN=:80) l'app risponde in HTTP sull'IP del server.
+{$DOMAIN::80} {
+	encode gzip
+
+	handle_path /api/* {
+		reverse_proxy api:8000
+	}
+
+	handle {
+		root * /srv
+		try_files {path} /index.html
+		file_server
+	}
+}
