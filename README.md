@@ -11,7 +11,7 @@ Trader Slave esegue in automatico strategie di trading su criptovalute: la strat
 | `backend/` | API in Python (FastAPI) e motore dei bot |
 | `frontend/` | Interfaccia web in React (Vite + TypeScript) |
 | `deploy/` | Caddy: serve il frontend, fa da proxy verso l'API e gestisce HTTPS |
-| `docs/` | Guide, a partire da [come mettere l'app su un server](docs/server.md) |
+| `docs/` | [Architettura del backend](docs/architettura-backend.md) e guide, come [mettere l'app su un server](docs/server.md) |
 | `site/` | La [roadmap di sviluppo](https://pittalavito.github.io/trader-slave-v2/), pubblicata su GitHub Pages |
 
 Il motore è diviso in sei livelli (`backend/app/engine/layers.py`): 

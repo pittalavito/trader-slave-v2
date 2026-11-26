@@ -62,7 +62,45 @@ window.ROADMAP = {
       }
     },
     {
-      status: "next",
+      status: "doing",
+      title: { it: "Architettura backend", en: "Backend architecture" },
+      goal: {
+        it: "Decidere una volta per tutte struttura e librerie del backend, e prepararne lo scheletro, così ogni fase successiva aggiunge pezzi senza rifare le fondamenta.",
+        en: "Decide the backend structure and libraries once and for all, and build its skeleton, so every later phase adds pieces without redoing the foundations."
+      },
+      tasks: [
+        { s: "done", it: "Proposta di architettura: struttura delle cartelle, librerie, database, comunicazione tra API e motore", en: "Architecture proposal: folder layout, libraries, database, communication between API and engine" },
+        { s: "done", it: "Scelte decise insieme a Vito (<a href=\"https://github.com/pittalavito/trader-slave-v2/blob/main/docs/architettura-backend.md\">documento</a>)", en: "Choices made together with Vito (<a href=\"https://github.com/pittalavito/trader-slave-v2/blob/main/docs/architettura-backend.md\">document</a>, in Italian)" },
+        { it: "Gestione dipendenze, controlli di stile e di tipo, test con un database vero", en: "Dependency management, lint and type checks, tests against a real database" },
+        { it: "Database con migrazioni versionate e prime tabelle", en: "Database with versioned migrations and the first tables" },
+        { it: "Struttura a moduli per area (mercato, strategie, backtest, portafogli, utenti) con il motore a sei livelli", en: "Module layout by area (market, strategies, backtest, portfolios, users) with the six-layer engine" },
+        { it: "Collegamenti verso Kraken e Solana dietro interfacce comuni, sostituibili da versioni simulate", en: "Kraken and Solana connections behind common interfaces, replaceable by simulated versions" },
+        { it: "Configurazione, log strutturati e gestione sicura dei segreti", en: "Configuration, structured logs and safe secret handling" }
+      ],
+      exit: {
+        it: "Il documento di architettura è approvato e lo scheletro del backend parte in locale con Docker, con test e controlli verdi.",
+        en: "The architecture document is approved and the backend skeleton starts locally with Docker, with green tests and checks."
+      }
+    },
+    {
+      title: { it: "Architettura frontend", en: "Frontend architecture" },
+      goal: {
+        it: "Decidere struttura e librerie del frontend React e prepararne lo scheletro.",
+        en: "Decide the React frontend structure and libraries and build its skeleton."
+      },
+      tasks: [
+        { it: "Proposta di architettura: routing, chiamate all'API, gestione dello stato, componenti grafici, grafici delle candele", en: "Architecture proposal: routing, API calls, state management, UI components, candle charts" },
+        { it: "Approvazione delle scelte da parte di Vito", en: "Choices approved by Vito" },
+        { it: "Tipi generati automaticamente dall'API del backend", en: "Types generated automatically from the backend API" },
+        { it: "Struttura delle pagine, tema chiaro e scuro, italiano e inglese", en: "Page layout, light and dark theme, Italian and English" },
+        { it: "Controlli di stile e test", en: "Lint checks and tests" }
+      ],
+      exit: {
+        it: "Il documento di architettura è approvato e lo scheletro del frontend mostra le pagine principali vuote collegate all'API.",
+        en: "The architecture document is approved and the frontend skeleton shows the main empty pages connected to the API."
+      }
+    },
+    {
       title: { it: "Dati di mercato", en: "Market data" },
       goal: {
         it: "Avere nel database le candele storiche e aggiornate dei mercati che useremo, per tutti e tre i blocchi di timeframe.",
@@ -147,8 +185,8 @@ window.ROADMAP = {
       status: "paused",
       title: { it: "Server online", en: "Server online" },
       goal: {
-        it: "Mettere l'app su un server in Europa che si aggiorna da solo a ogni modifica. In pausa per scelta: le fasi da 1 a 4 si sviluppano e si provano in locale con Docker, e il server torna in agenda prima della simulazione 24 ore su 24.",
-        en: "Put the app on a server in Europe that updates itself on every change. On hold by choice: phases 1 to 4 are built and tested locally with Docker, and the server comes back before the 24/7 simulation."
+        it: "Mettere l'app su un server in Europa che si aggiorna da solo a ogni modifica. In pausa per scelta: le fasi da 1 a 6 si sviluppano e si provano in locale con Docker, e il server torna in agenda prima della simulazione 24 ore su 24.",
+        en: "Put the app on a server in Europe that updates itself on every change. On hold by choice: phases 1 to 6 are built and tested locally with Docker, and the server comes back before the 24/7 simulation."
       },
       tasks: [
         { s: "done", it: "Deploy automatico a ogni merge su <code>main</code> già pronto: si attiva da solo quando il server è configurato", en: "Automatic deploy on every merge to <code>main</code> already in place: it turns on by itself once the server is configured" },
@@ -224,6 +262,31 @@ window.ROADMAP = {
       }
     },
     {
+      title: { it: "Rafforzare la sicurezza", en: "Security hardening" },
+      goal: {
+        it: "Prima di mettere soldi veri, alzare il livello di sicurezza e chiudere i punti deboli raccolti strada facendo.",
+        en: "Before real money goes in, raise the security level and close the weak spots collected along the way."
+      },
+      tasks: [
+        { it: "Spostare le chiavi API e dei wallet dal database cifrato a una cassaforte dedicata (per esempio Vault o un KMS)", en: "Move API and wallet keys from the encrypted database to a dedicated vault (for example Vault or a KMS)" },
+        { it: "Rotazione periodica delle chiavi e della chiave di cifratura", en: "Periodic rotation of keys and of the encryption key" },
+        { it: "Verifica in due passaggi (2FA) per il login", en: "Two-factor authentication (2FA) for login" },
+        { it: "Limiti alle richieste e blocco dopo troppi tentativi di accesso", en: "Rate limits and lockout after too many login attempts" },
+        { it: "Registro di chi fa cosa (accessi, modifiche, comandi al motore)", en: "Audit log of who does what (logins, changes, engine commands)" },
+        { it: "Backup cifrati e prova di ripristino", en: "Encrypted backups and a restore test" },
+        { it: "Controllo automatico delle dipendenze con vulnerabilità note", en: "Automatic check for dependencies with known vulnerabilities" },
+        { it: "Chiudere i punti di sicurezza annotati durante lo sviluppo", en: "Close the security items noted during development" }
+      ],
+      exit: {
+        it: "Tutte le attività sono fatte e non restano punti di sicurezza aperti prima del primo euro vero.",
+        en: "All tasks are done and no security items remain open before the first real euro."
+      },
+      guess: {
+        it: "per ora le chiavi stanno cifrate nel database (deciso). Ogni punto di sicurezza trovato durante lo sviluppo si aggiunge a questa fase.",
+        en: "for now keys are stored encrypted in the database (decided). Every security issue found during development gets added to this phase."
+      }
+    },
+    {
       title: { it: "Soldi veri: strategia B su Kraken", en: "Real money: strategy B on Kraken" },
       goal: {
         it: "La strategia B opera con soldi veri sul conto Kraken, con un capitale piccolo e tutti i freni attivi.",
@@ -290,9 +353,9 @@ window.ROADMAP = {
   ],
 
   deferred: [
-    { it: "Regole di entrata e uscita delle strategie: si definiscono nella fase 8.", en: "Strategy entry and exit rules: defined in phase 8." },
-    { it: "Come si calcola la percentuale sulle vincite: nella fase 11, dopo la verifica legale.", en: "How the cut on winnings is calculated: in phase 11, after the legal check." },
-    { it: "Su quali token opera ogni strategia: dopo i test della fase 8.", en: "Which tokens each strategy trades: after the tests in phase 8." }
+    { it: "Regole di entrata e uscita delle strategie: si definiscono nella fase 10.", en: "Strategy entry and exit rules: defined in phase 10." },
+    { it: "Come si calcola la percentuale sulle vincite: nella fase 14, dopo la verifica legale.", en: "How the cut on winnings is calculated: in phase 14, after the legal check." },
+    { it: "Su quali token opera ogni strategia: dopo i test della fase 10.", en: "Which tokens each strategy trades: after the tests in phase 10." }
   ],
 
   outside: [
