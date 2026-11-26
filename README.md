@@ -11,8 +11,15 @@ Trader Slave esegue in automatico strategie di trading su criptovalute: la strat
 | `deploy/` | Caddy: serve il frontend, fa da proxy verso l'API e gestisce HTTPS |
 | `docs/` | Guide, a partire da [come mettere l'app su un server](docs/server.md) |
 
-Il motore è diviso in sei livelli (`backend/app/engine/layers.py`): dati di mercato, segnale, rischio, dimensionamento, esecuzione e portafoglio. Ogni strategia implementa solo il livello del segnale; gli altri sono comuni a tutte.
+Il motore è diviso in sei livelli (`backend/app/engine/layers.py`): 
+- dati di mercato,
+- segnale,
+- rischio,
+- dimensionamento,
+- esecuzione
+- portafoglio.
 
+Ogni strategia implementa solo il livello del segnale; gli altri sono comuni a tutte.
 In produzione girano quattro servizi Docker: `db` (PostgreSQL), `api`, `worker` (il motore, sempre acceso) e `web` (Caddy con il frontend).
 
 ## Sviluppo in locale
