@@ -5,7 +5,8 @@ Override the URL with TEST_DATABASE_URL.
 """
 
 import os
-from collections.abc import AsyncIterator, Iterator
+import sys
+from collections.abc import AsyncIterator, Callable, Iterator, Mapping
 from datetime import UTC, datetime
 
 import pytest
@@ -15,13 +16,21 @@ from httpx import ASGITransport, AsyncClient
 from sqlalchemy import text
 
 from alembic import command
+from app.core import aio
 from app.core.clock import SimulatedClock
 from app.core.config import Settings
 from app.core.container import Container, build_container
 from app.main import create_app
 
-TEST_DATABASE_URL = os.environ.get("TEST_DATABASE_URL", "postgresql+psycopg://trader:trader@localhost:5432/trader_test")
+# 127.0.0.1, not localhost: on Windows localhost tries IPv6 first and the db only listens on IPv4.
+TEST_DATABASE_URL = os.environ.get("TEST_DATABASE_URL", "postgresql+psycopg://trader:trader@127.0.0.1:5432/trader_test")
 START = datetime(2026, 1, 1, tzinfo=UTC)
+
+if sys.platform == "win32":
+
+    def pytest_asyncio_loop_factories(config: pytest.Config, item: pytest.Item) -> Mapping[str, Callable[[], object]]:
+        # psycopg needs a SelectorEventLoop on Windows (see app.core.aio).
+        return {"selector": aio.new_event_loop}
 
 
 def _alembic_config() -> Config:
