@@ -6,6 +6,7 @@ esecuzione e portafoglio sono comuni a tutte le strategie.
 
 from abc import ABC, abstractmethod
 
+from app.core.types import PortfolioId, Symbol, Timeframe
 from app.engine.models import (
     MarketData,
     OrderRequest,
@@ -20,7 +21,7 @@ class MarketDataLayer(ABC):
     """Fornisce le candele del timeframe scelto."""
 
     @abstractmethod
-    def get(self, symbol: str, timeframe: str) -> MarketData: ...
+    async def get(self, symbol: Symbol, timeframe: Timeframe) -> MarketData: ...
 
 
 class SignalLayer(ABC):
@@ -29,9 +30,9 @@ class SignalLayer(ABC):
     name: str
 
     @abstractmethod
-    def generate(self, market: MarketData) -> Signal: ...
+    async def generate(self, market: MarketData) -> Signal: ...
 
-    def should_close(self, position: Position, market: MarketData) -> bool:
+    async def should_close(self, position: Position, market: MarketData) -> bool:
         """Se chiudere una posizione aperta. Di default non chiude mai."""
         return False
 
@@ -40,34 +41,38 @@ class RiskLayer(ABC):
     """Decide se si può aprire una nuova posizione."""
 
     @abstractmethod
-    def assess(self, portfolio: PortfolioState, market: MarketData) -> RiskAssessment: ...
+    async def assess(self, portfolio: PortfolioState, market: MarketData) -> RiskAssessment: ...
 
 
 class SizingLayer(ABC):
     """Decide quanto investire e con quale leva."""
 
     @abstractmethod
-    def size(self, signal: Signal, portfolio: PortfolioState, market: MarketData) -> OrderRequest | None: ...
+    async def size(
+        self, signal: Signal, portfolio: PortfolioState, market: MarketData
+    ) -> OrderRequest | None: ...
 
 
 class ExecutionLayer(ABC):
     """Manda l'ordine: in backtest, in simulazione o sul conto reale."""
 
     @abstractmethod
-    def open(self, order: OrderRequest, price_hint: MarketData) -> Position: ...
+    async def open(self, order: OrderRequest, price_hint: MarketData) -> Position: ...
 
     @abstractmethod
-    def close(self, position: Position, price_hint: MarketData) -> None: ...
+    async def close(self, position: Position, price_hint: MarketData) -> None: ...
 
 
 class PortfolioLayer(ABC):
     """Tiene capitale, capitale impegnato, massimo storico e posizioni aperte."""
 
     @abstractmethod
-    def get(self, portfolio_id: int) -> PortfolioState: ...
+    async def get(self, portfolio_id: PortfolioId) -> PortfolioState: ...
 
     @abstractmethod
-    def record_open(self, portfolio_id: int, position: Position) -> None: ...
+    async def record_open(self, portfolio_id: PortfolioId, position: Position) -> None: ...
 
     @abstractmethod
-    def record_close(self, portfolio_id: int, position: Position, exit_price_hint: MarketData) -> None: ...
+    async def record_close(
+        self, portfolio_id: PortfolioId, position: Position, exit_price_hint: MarketData
+    ) -> None: ...

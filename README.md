@@ -14,7 +14,7 @@ Trader Slave esegue in automatico strategie di trading su criptovalute: la strat
 | `docs/` | [Architettura del backend](docs/architettura-backend.md) e guide, come [mettere l'app su un server](docs/server.md) |
 | `site/` | La [roadmap di sviluppo](https://pittalavito.github.io/trader-slave-v2/), pubblicata su GitHub Pages |
 
-Il motore è diviso in sei livelli (`backend/app/engine/layers.py`): 
+Struttura, librerie e regole del backend sono in [docs/architettura-backend.md](docs/architettura-backend.md). Il motore è diviso in sei livelli (`backend/app/engine/layers.py`): 
 - dati di mercato,
 - segnale,
 - rischio,
@@ -27,15 +27,26 @@ In produzione girano quattro servizi Docker: `db` (PostgreSQL), `api`, `worker` 
 
 ## Sviluppo in locale
 
-Backend:
+Backend (serve [uv](https://docs.astral.sh/uv/) e Docker per il database):
 
 ```bash
+docker compose up -d db          # PostgreSQL con TimescaleDB
 cd backend
-python -m venv .venv && source .venv/bin/activate
-pip install -e ".[dev]"
-pytest
-uvicorn app.main:app --reload
+uv sync                          # installa le dipendenze bloccate in uv.lock
+export DATABASE_URL=postgresql+psycopg://trader:<POSTGRES_PASSWORD>@localhost:5432/trader
+uv run alembic upgrade head      # crea le tabelle
+uv run uvicorn app.main:app --reload
 ```
+
+Controlli prima di una PR (gli stessi della CI):
+
+```bash
+uv run ruff check . && uv run ruff format --check .
+uv run mypy
+uv run pytest                    # usa TEST_DATABASE_URL, di default il database di test in locale
+```
+
+Il database di test si crea una volta con `docker compose exec db createdb -U trader trader_test`; se la password non è `trader`, imposta `TEST_DATABASE_URL`.
 
 Frontend, in un altro terminale (le chiamate a `/api` vanno al backend locale):
 

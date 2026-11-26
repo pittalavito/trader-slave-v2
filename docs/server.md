@@ -35,7 +35,7 @@ su - deploy
 git clone https://github.com/pittalavito/trader-slave-v2.git /opt/trader-slave
 cd /opt/trader-slave
 cp .env.example .env
-nano .env   # cambia almeno POSTGRES_PASSWORD
+nano .env   # cambia almeno POSTGRES_PASSWORD, JWT_SECRET e SECRETS_KEY (le istruzioni sono nel file)
 docker compose up -d --build
 ```
 
