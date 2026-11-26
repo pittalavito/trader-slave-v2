@@ -62,7 +62,7 @@ window.ROADMAP = {
       }
     },
     {
-      status: "done",
+      status: "doing",
       title: { it: "Architettura backend", en: "Backend architecture" },
       goal: {
         it: "Decidere una volta per tutte struttura e librerie del backend, e prepararne lo scheletro, così ogni fase successiva aggiunge pezzi senza rifare le fondamenta.",
@@ -75,7 +75,8 @@ window.ROADMAP = {
         { s: "done", it: "Database con migrazioni versionate e prime tabelle", en: "Database with versioned migrations and the first tables" },
         { s: "done", it: "Struttura a moduli per area (mercato, strategie, backtest, portafogli, utenti) con il motore a sei livelli", en: "Module layout by area (market, strategies, backtest, portfolios, users) with the six-layer engine" },
         { s: "done", it: "Collegamenti verso Kraken e Solana dietro interfacce comuni, sostituibili da versioni simulate", en: "Kraken and Solana connections behind common interfaces, replaceable by simulated versions" },
-        { s: "done", it: "Configurazione, log strutturati e gestione sicura dei segreti", en: "Configuration, structured logs and safe secret handling" }
+        { s: "done", it: "Configurazione, log strutturati e gestione sicura dei segreti", en: "Configuration, structured logs and safe secret handling" },
+        { it: "Verifica del refactoring: rileggere insieme lo scheletro e sistemare ciò che non convince", en: "Refactoring review: go through the skeleton together and fix what does not convince us" }
       ],
       exit: {
         it: "Il documento di architettura è approvato e lo scheletro del backend parte in locale con Docker, con test e controlli verdi.",
