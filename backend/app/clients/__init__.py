@@ -1,5 +1,5 @@
-"""Collegamenti al mondo esterno: Kraken, Solana e la versione simulata.
+"""Connections to the outside world: Kraken, Solana and the simulated version.
 
-Tutti rispettano le interfacce in `base.py`, così il motore non sa se sta
-parlando con Kraken vero o con il simulatore del backtest.
+All of them implement the interfaces in `base.py`, so the engine does not know
+whether it is talking to the real Kraken or to the backtest simulator.
 """

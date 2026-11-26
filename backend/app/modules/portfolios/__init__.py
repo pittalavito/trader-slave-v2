@@ -1,4 +1,4 @@
-"""Portafogli, strategie attive, limiti di rischio e operazioni.
+"""Portfolios, active strategies, risk limits and trades.
 
-Si riempie nella fase "Utenti, portafogli e ruoli".
+Filled in during the "Users, portfolios and roles" phase.
 """

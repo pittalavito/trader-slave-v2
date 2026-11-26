@@ -1,7 +1,7 @@
-"""Il motore: a ogni ciclo attraversa i livelli in ordine.
+"""The engine: on every cycle it goes through the layers in order.
 
-Lo stesso motore fa backtest, simulazione e soldi veri: cambiano solo i
-livelli che riceve (dati storici o in tempo reale, esecuzione simulata o reale).
+The same engine runs backtests, simulation and real money: only the layers it
+receives change (historical or live data, simulated or real execution).
 """
 
 from dataclasses import dataclass
@@ -37,11 +37,9 @@ class Engine:
 
     @observed(name="engine.run_cycle")
     async def run_cycle(self) -> None:
-        """Un ciclo: prima chiude le posizioni da chiudere, poi valuta un'apertura."""
+        """One cycle: first close what should be closed, then consider opening."""
         cfg = self.config
-        with correlation_scope(
-            portfolio_id=cfg.portfolio_id, symbol=str(cfg.symbol), strategy=self.signal.name
-        ):
+        with correlation_scope(portfolio_id=cfg.portfolio_id, symbol=str(cfg.symbol), strategy=self.signal.name):
             market = await self.market_data.get(cfg.symbol, cfg.timeframe)
             state = await self.portfolio.get(cfg.portfolio_id)
 

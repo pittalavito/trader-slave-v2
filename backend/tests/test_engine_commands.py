@@ -18,7 +18,7 @@ async def test_command_reaches_listener_via_notify(container: Container, clock: 
     listener = CommandListener(container.session_factory, container.settings.database_url, handler, clock)
     stop = asyncio.Event()
     task = asyncio.create_task(listener.run(stop))
-    await asyncio.sleep(0.5)  # il listener è in ascolto
+    await asyncio.sleep(0.5)  # give the listener time to start
 
     async with container.session_factory() as session, session.begin():
         command_id = await send_command(session, CommandKind.STOP, {"portfolio_id": 1})

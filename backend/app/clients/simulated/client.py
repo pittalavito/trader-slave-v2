@@ -1,7 +1,7 @@
-"""Client simulato per backtest, paper trading e test.
+"""Simulated client for backtests, paper trading and tests.
 
-Esegue gli ordini al prezzo dell'ultima candela conosciuta, senza toccare
-nessun conto. Commissioni e slittamento arrivano nella fase "Motore di backtest".
+Fills orders at the price of the last known candle, without touching any
+account. Fees and slippage arrive in the "Backtest engine" phase.
 """
 
 from collections import defaultdict
@@ -23,32 +23,22 @@ class SimulatedClient:
         for candle in candles:
             self._candles[(candle.symbol, timeframe)].append(candle)
 
-    async def fetch_candles(
-        self, symbol: Symbol, timeframe: Timeframe, since: datetime | None = None, limit: int = 500
-    ) -> list[Candle]:
-        # Solo candele già "accadute" secondo l'orologio: niente sbirciate nel futuro.
+    async def fetch_candles(self, symbol: Symbol, timeframe: Timeframe, since: datetime | None = None, limit: int = 500) -> list[Candle]:
+        # Only candles that already "happened" according to the clock: no peeking into the future.
         now = self._clock.now()
-        visible = [
-            c
-            for c in self._candles[(symbol, timeframe)]
-            if c.open_time <= now and (since is None or c.open_time >= since)
-        ]
+        visible = [c for c in self._candles[(symbol, timeframe)] if c.open_time <= now and (since is None or c.open_time >= since)]
         return visible[-limit:]
 
     def _last_price(self, symbol: Symbol) -> Candle:
         now = self._clock.now()
-        candidates = [
-            c for (s, _), cs in self._candles.items() if s == symbol for c in cs if c.open_time <= now
-        ]
+        candidates = [c for (s, _), cs in self._candles.items() if s == symbol for c in cs if c.open_time <= now]
         if not candidates:
-            raise DomainError("Nessun prezzo disponibile per il simbolo", details={"symbol": str(symbol)})
+            raise DomainError("No price available for the symbol", details={"symbol": str(symbol)})
         return max(candidates, key=lambda c: c.open_time)
 
     async def open_position(self, order: OrderRequest) -> Position:
         price = self._last_price(order.symbol).close
-        position = Position(
-            order.symbol, order.side, order.quantity, price, order.leverage, self._clock.now()
-        )
+        position = Position(order.symbol, order.side, order.quantity, price, order.leverage, self._clock.now())
         self.open_positions.append(position)
         return position
 

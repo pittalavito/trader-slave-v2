@@ -1,9 +1,9 @@
-"""Assemblaggio dei componenti.
+"""Component wiring (composition root).
 
-È l'unico punto che decide quali implementazioni usare: API e motore prendono
-i componenti veri da qui; backtest e test ne costruiscono uno con orologio e
-client simulati. Le classi ricevono le dipendenze nel costruttore e non sanno
-da dove arrivano.
+The only place that decides which implementations to use: API and engine take
+the real components from here; backtests and tests build one with a simulated
+clock and clients. Classes receive their dependencies in the constructor and do
+not know where they come from.
 """
 
 from __future__ import annotations

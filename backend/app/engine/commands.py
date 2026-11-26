@@ -1,8 +1,8 @@
-"""Comandi dall'API al motore, passando da Postgres.
+"""Commands from the API to the engine, through Postgres.
 
-L'API scrive il comando nella tabella `engine_commands` e manda un
-`NOTIFY engine_commands`; il motore è in ascolto (`LISTEN`) e lo esegue subito.
-Il comando resta salvato: se il motore è spento, lo trova al riavvio.
+The API writes the command to the `engine_commands` table and sends
+`NOTIFY engine_commands`; the engine is listening (`LISTEN`) and runs it right away.
+The command stays stored: if the engine is down, it picks it up on restart.
 """
 
 from __future__ import annotations
@@ -49,9 +49,7 @@ class EngineCommand(TimestampMixin, Base):
     __tablename__ = "engine_commands"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    kind: Mapped[CommandKind] = mapped_column(
-        Enum(CommandKind, name="engine_command_kind", values_callable=_enum_values)
-    )
+    kind: Mapped[CommandKind] = mapped_column(Enum(CommandKind, name="engine_command_kind", values_callable=_enum_values))
     payload: Mapped[dict[str, Any]] = mapped_column(JSONB, default=dict, server_default="{}")
     status: Mapped[CommandStatus] = mapped_column(
         Enum(CommandStatus, name="engine_command_status", values_callable=_enum_values),
@@ -63,18 +61,14 @@ class EngineCommand(TimestampMixin, Base):
     error: Mapped[str | None] = mapped_column(String(2000))
 
 
-@observed(name="engine.send_command")
-async def send_command(
-    session: AsyncSession, kind: CommandKind, payload: dict[str, Any] | None = None
-) -> CommandId:
-    """Salva un comando e sveglia il motore. Va chiamato dentro una transazione dell'API."""
+@observed(name="engine.send_command", fields=["kind"])
+async def send_command(session: AsyncSession, kind: CommandKind, payload: dict[str, Any] | None = None) -> CommandId:
+    """Stores a command and wakes the engine up. Call it inside an API transaction."""
     command = EngineCommand(kind=kind, payload=payload or {})
     session.add(command)
     await session.flush()
-    # NOTIFY parte solo al commit: il motore non vede mai un comando non ancora salvato.
-    await session.execute(
-        text("SELECT pg_notify(:channel, :id)"), {"channel": CHANNEL, "id": str(command.id)}
-    )
+    # NOTIFY is only delivered on commit: the engine never sees an uncommitted command.
+    await session.execute(text("SELECT pg_notify(:channel, :id)"), {"channel": CHANNEL, "id": str(command.id)})
     return CommandId(command.id)
 
 
@@ -82,7 +76,7 @@ CommandHandler = Callable[[EngineCommand], Awaitable[None]]
 
 
 class CommandListener:
-    """Il lato motore: ascolta i NOTIFY ed esegue i comandi in attesa, in ordine."""
+    """Engine side: listens for NOTIFY and runs pending commands in order."""
 
     def __init__(
         self,
@@ -92,14 +86,14 @@ class CommandListener:
         clock: Clock,
     ) -> None:
         self._sessions = session_factory
-        # psycopg vuole l'URL senza il prefisso del driver SQLAlchemy.
+        # psycopg wants the URL without the SQLAlchemy driver prefix.
         self._dsn = database_url.replace("postgresql+psycopg://", "postgresql://", 1)
         self._handler = handler
         self._clock = clock
 
     @observed(name="engine.process_pending_commands")
     async def process_pending(self) -> int:
-        """Esegue tutti i comandi in attesa. Restituisce quanti ne ha eseguiti."""
+        """Runs all pending commands. Returns how many were run."""
         processed = 0
         while True:
             async with self._sessions() as session, session.begin():
@@ -124,11 +118,11 @@ class CommandListener:
                 processed += 1
 
     async def run(self, stop: asyncio.Event) -> None:
-        """Ascolta finché `stop` non viene impostato."""
+        """Listens until `stop` is set."""
         async with await psycopg.AsyncConnection.connect(self._dsn, autocommit=True) as conn:
             await conn.execute(f"LISTEN {CHANNEL}")
             log.info("engine.listening", channel=CHANNEL)
-            # Comandi arrivati mentre il motore era spento.
+            # Commands that arrived while the engine was down.
             await self.process_pending()
             while not stop.is_set():
                 async for _ in conn.notifies(timeout=1.0, stop_after=1):

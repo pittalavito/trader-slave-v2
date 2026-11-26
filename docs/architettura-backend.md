@@ -86,6 +86,8 @@ Decise insieme a Vito il 26 novembre 2026. `app/core/` contiene solo ciò che se
 - Un decoratore **`@observed`** in `core/observability.py` da mettere sui metodi importanti (servizi, livelli del motore, client). Registra inizio, durata, esito ed eventuale errore.
 - **Log JSON con structlog** e **tracce OpenTelemetry**. Ogni richiesta API e ogni ciclo del motore ha un id che lega tutti i passi, così si ricostruisce perché una strategia ha aperto o chiuso.
 - In locale le tracce si leggono nei log; più avanti si possono mandare a Grafana o simili senza cambiare il codice.
+- `@observed(fields=[...])` scrive nel log solo gli argomenti scelti a mano (per esempio simbolo e timeframe), così chiavi e password non finiscono mai nei log per sbaglio.
+- Per ora gli span si vedono nel terminale con `OTEL_CONSOLE=true`; un viewer grafico (Grafana, Jaeger) arriva più avanti.
 
 ### Errori ✅
 Una gerarchia di eccezioni in `core/errors.py`, ognuna con un codice stabile e un messaggio:

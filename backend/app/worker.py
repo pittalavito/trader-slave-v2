@@ -1,8 +1,8 @@
-"""Processo del motore, separato dall'API e sempre acceso.
+"""Engine process: separate from the API and always running.
 
-Per ora ascolta i comandi dall'API e registra un battito a ogni ciclo.
-Dalla fase "Simulazione 24 ore su 24" eseguirà le strategie attive
-alla chiusura di ogni candela.
+For now it listens for commands from the API and logs a heartbeat on every tick.
+From the "24/7 simulation" phase on it will run the active strategies at the
+close of every candle.
 """
 
 import asyncio
@@ -18,10 +18,8 @@ log = get_logger("worker")
 
 
 async def handle_command(command: EngineCommand) -> None:
-    # I bot arrivano nelle prossime fasi: per ora il comando viene solo registrato.
-    log.info(
-        "engine.command_received", command_id=command.id, kind=command.kind.value, payload=command.payload
-    )
+    # Bots arrive in later phases: for now the command is only logged.
+    log.info("engine.command_received", command_id=command.id, kind=command.kind.value, payload=command.payload)
 
 
 async def heartbeat(container: Container, stop: asyncio.Event) -> None:
@@ -34,18 +32,14 @@ async def heartbeat(container: Container, stop: asyncio.Event) -> None:
 
 async def main() -> None:
     settings = get_settings()
-    configure_observability(
-        level=settings.log_level, json_logs=settings.is_production, otel_console=settings.otel_console
-    )
+    configure_observability(level=settings.log_level, json_logs=settings.is_production, otel_console=settings.otel_console)
     container = build_container(settings)
     stop = asyncio.Event()
     loop = asyncio.get_running_loop()
     for sig in (signal.SIGTERM, signal.SIGINT):
         loop.add_signal_handler(sig, stop.set)
 
-    listener = CommandListener(
-        container.session_factory, settings.database_url, handle_command, container.clock
-    )
+    listener = CommandListener(container.session_factory, settings.database_url, handle_command, container.clock)
     log.info("engine.started", tick_seconds=settings.engine_tick_seconds)
     try:
         await asyncio.gather(listener.run(stop), heartbeat(container, stop))

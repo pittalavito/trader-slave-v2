@@ -1,7 +1,7 @@
-"""Dati che passano tra i livelli del motore.
+"""Data passed between the engine layers.
 
-Sono dataclass immutabili (`frozen`, `slots`): veloci nel backtest e
-controllate da mypy. La validazione dei dati esterni avviene prima, ai bordi.
+Immutable dataclasses (`frozen`, `slots`): fast in backtests and checked by mypy.
+External data is validated earlier, at the edges, with Pydantic.
 """
 
 from dataclasses import dataclass, field
@@ -41,7 +41,7 @@ class MarketData:
 
 @dataclass(frozen=True, slots=True)
 class Signal:
-    """Quando entrare e in che direzione. `side=None` significa nessun segnale."""
+    """When to enter and in which direction. `side=None` means no signal."""
 
     symbol: Symbol
     side: Side | None

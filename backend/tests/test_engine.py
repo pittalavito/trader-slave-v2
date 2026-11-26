@@ -57,9 +57,7 @@ class FixedRisk(RiskLayer):
 
 
 class OneUnitSizing(SizingLayer):
-    async def size(
-        self, signal: Signal, portfolio: PortfolioState, market: MarketData
-    ) -> OrderRequest | None:
+    async def size(self, signal: Signal, portfolio: PortfolioState, market: MarketData) -> OrderRequest | None:
         assert signal.side is not None
         return OrderRequest(signal.symbol, signal.side, Decimal("1"), leverage=2)
 
@@ -82,9 +80,7 @@ class MemoryPortfolio(PortfolioLayer):
     async def record_open(self, portfolio_id: PortfolioId, position: Position) -> None:
         self.state = replace(self.state, open_positions=(*self.state.open_positions, position))
 
-    async def record_close(
-        self, portfolio_id: PortfolioId, position: Position, exit_price_hint: MarketData
-    ) -> None:
+    async def record_close(self, portfolio_id: PortfolioId, position: Position, exit_price_hint: MarketData) -> None:
         remaining = tuple(p for p in self.state.open_positions if p != position)
         self.state = replace(self.state, open_positions=remaining)
 

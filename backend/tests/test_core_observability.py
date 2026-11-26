@@ -13,7 +13,7 @@ def add(a: int, b: int) -> int:
 
 @observed(name="test.async_fail")
 async def fail_async() -> None:
-    raise DomainError("limite superato", code="risk_limit")
+    raise DomainError("risk limit exceeded", code="risk_limit")
 
 
 def _logs(captured: str) -> list[dict[str, object]]:
@@ -40,3 +40,24 @@ async def test_observed_async_logs_app_error_code(capsys: pytest.CaptureFixture[
     assert entry["operation"] == "test.async_fail"
     assert entry["error_code"] == "risk_limit"
     assert entry["level"] == "warning"
+
+
+@observed(fields=["symbol"])
+def place(symbol: str, api_key: str) -> str:
+    return symbol
+
+
+def test_observed_logs_only_chosen_fields(capsys: pytest.CaptureFixture[str]) -> None:
+    configure_observability(level="DEBUG")
+    place("BTC/USD", api_key="secret-key")
+    (entry,) = [e for e in _logs(capsys.readouterr().out) if e.get("event") == "operation.ok"]
+    assert entry["symbol"] == "BTC/USD"
+    assert "api_key" not in entry
+    assert "secret-key" not in json.dumps(entry)
+
+
+def test_observed_rejects_unknown_fields() -> None:
+    with pytest.raises(TypeError, match="unknown fields"):
+
+        @observed(fields=["missing"])
+        def noop() -> None: ...

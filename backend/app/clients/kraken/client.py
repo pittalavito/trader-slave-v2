@@ -1,7 +1,7 @@
-"""Kraken Futures tramite ccxt.
+"""Kraken Futures through ccxt.
 
-Per ora solo la lettura delle candele, che serve dalla fase "Dati di mercato".
-Gli ordini arrivano nella fase "Soldi veri: strategia B su Kraken".
+For now only candle reads, needed from the "Market data" phase.
+Orders arrive in the "Real money: strategy B on Kraken" phase.
 """
 
 from datetime import UTC, datetime
@@ -18,27 +18,21 @@ from app.engine.models import Candle
 
 class KrakenFuturesClient:
     def __init__(self, exchange: Any | None = None) -> None:
-        # L'exchange si può passare dall'esterno (nei test, un finto exchange).
+        # The exchange can be injected (a fake one in tests).
         self._exchange = exchange or ccxt.krakenfutures({"enableRateLimit": True})
 
     @staticmethod
     def market_symbol(symbol: Symbol) -> str:
-        """Simbolo ccxt dei perpetui lineari, per esempio BTC/USD:USD."""
+        """ccxt symbol of the linear perpetual, e.g. BTC/USD:USD."""
         return f"{symbol.base}/{symbol.quote}:{symbol.quote}"
 
-    @observed(name="kraken.fetch_candles")
-    async def fetch_candles(
-        self, symbol: Symbol, timeframe: Timeframe, since: datetime | None = None, limit: int = 500
-    ) -> list[Candle]:
+    @observed(name="kraken.fetch_candles", fields=["symbol", "timeframe"])
+    async def fetch_candles(self, symbol: Symbol, timeframe: Timeframe, since: datetime | None = None, limit: int = 500) -> list[Candle]:
         since_ms = int(since.timestamp() * 1000) if since else None
         try:
-            rows = await self._exchange.fetch_ohlcv(
-                self.market_symbol(symbol), timeframe.value, since=since_ms, limit=limit
-            )
+            rows = await self._exchange.fetch_ohlcv(self.market_symbol(symbol), timeframe.value, since=since_ms, limit=limit)
         except ccxt.BaseError as exc:
-            raise ExternalServiceError(
-                "Kraken non ha restituito le candele", code="kraken_error", details={"reason": str(exc)}
-            ) from exc
+            raise ExternalServiceError("Kraken did not return the candles", code="kraken_error", details={"reason": str(exc)}) from exc
         return [_to_candle(symbol, row) for row in rows]
 
     async def close(self) -> None:
@@ -47,7 +41,7 @@ class KrakenFuturesClient:
 
 def _to_candle(symbol: Symbol, row: list[Any]) -> Candle:
     ts, o, h, low, c, v = row[:6]
-    # str() prima di Decimal: evita di portarsi dietro gli errori di arrotondamento dei float.
+    # str() before Decimal: avoids carrying float rounding errors over.
     return Candle(
         symbol=symbol,
         open_time=datetime.fromtimestamp(ts / 1000, tz=UTC),

@@ -1,5 +1,5 @@
-"""La parte comune a tutto il backend.
+"""The part shared by the whole backend.
 
-Nessun file qui dentro importa da `app.modules`, `app.clients` o `app.engine`:
-il core non dipende da nessuno, sono gli altri a dipendere dal core.
+No file in here imports from `app.modules`, `app.clients` or `app.engine`:
+the core depends on nothing, everything else depends on the core.
 """

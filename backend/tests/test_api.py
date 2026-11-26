@@ -18,10 +18,8 @@ async def test_request_id_is_returned(client: AsyncClient) -> None:
 async def test_app_errors_become_json_responses(app: FastAPI, client: AsyncClient) -> None:
     @app.get("/boom")
     async def boom() -> None:
-        raise DomainError("Leva oltre il tetto", code="leverage_too_high", details={"max": 3})
+        raise DomainError("Leverage above the cap", code="leverage_too_high", details={"max": 3})
 
     response = await client.get("/boom")
     assert response.status_code == 409
-    assert response.json() == {
-        "error": {"code": "leverage_too_high", "message": "Leva oltre il tetto", "details": {"max": 3}}
-    }
+    assert response.json() == {"error": {"code": "leverage_too_high", "message": "Leverage above the cap", "details": {"max": 3}}}

@@ -9,7 +9,7 @@ router = APIRouter()
 
 @router.get("/health")
 async def health(container: ContainerDep, session: SessionDep) -> JSONResponse:
-    """Usato da Docker e dal frontend per sapere se API e database rispondono."""
+    """Used by Docker and the frontend to check that API and database respond."""
     try:
         await session.execute(text("SELECT 1"))
         database = "ok"

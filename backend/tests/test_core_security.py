@@ -12,9 +12,9 @@ from tests.conftest import START
 
 def test_password_hash_roundtrip() -> None:
     hasher = PasswordHasher()
-    hashed = hasher.hash("una-password")
-    assert hashed != "una-password"
-    assert hasher.verify("una-password", hashed)
+    hashed = hasher.hash("a-password")
+    assert hashed != "a-password"
+    assert hasher.verify("a-password", hashed)
     assert not hasher.verify("sbagliata", hashed)
 
 

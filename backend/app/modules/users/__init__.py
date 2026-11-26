@@ -1,1 +1,1 @@
-"""Utenti e ruoli: amministratore, utente, osservatore in sola lettura."""
+"""Users and roles: administrator, user, read-only observer."""
