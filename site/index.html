@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Trader Slave · Roadmap</title>
-<meta name="description" content="Roadmap di sviluppo di Trader Slave: le fasi, cosa contiene ognuna e quando si considera finita.">
+<meta name="description" content="Roadmap di sviluppo di Trader Slave / Trader Slave development roadmap.">
 <style>
   :root {
     --bg: #f7f7f5;
@@ -21,6 +21,8 @@
     --todo-bg: #efeeea;
     --guess-bg: #f3f0fa;
     --guess: #5b3fa3;
+    --paused: #6b5fa0;
+    --paused-bg: #eeebf7;
   }
   @media (prefers-color-scheme: dark) {
     :root {
@@ -38,6 +40,8 @@
       --todo-bg: #2a2a27;
       --guess-bg: #2a2438;
       --guess: #c4b2f2;
+      --paused: #b6a9e6;
+      --paused-bg: #29253a;
     }
   }
   * { box-sizing: border-box; }
@@ -133,6 +137,27 @@
     margin: 14px 0 0; padding: 8px 12px; border-radius: 8px;
     background: var(--guess-bg); color: var(--guess); font-size: 0.92rem;
   }
+  .b-next { background: var(--doing-bg); color: var(--doing); }
+  .b-paused { background: var(--paused-bg); color: var(--paused); }
+  .stop.next .dot { border-color: var(--doing); color: var(--doing); background: var(--doing-bg); box-shadow: 0 0 0 6px var(--doing-bg); }
+  .stop.paused .dot { border-style: dashed; border-color: var(--paused); color: var(--paused); background: var(--paused-bg); }
+
+  /* Barra in alto: link al codice e lingua */
+  .topbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 20px; }
+  .code-link {
+    display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 999px;
+    background: var(--text); color: var(--bg); text-decoration: none; font-weight: 600; font-size: 0.92rem;
+  }
+  .code-link:hover { opacity: .88; }
+  .code-link svg { width: 18px; height: 18px; fill: currentColor; }
+  .code-link .arrow { transition: transform .15s ease; }
+  .code-link:hover .arrow { transform: translateX(3px); }
+  .lang { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; overflow: hidden; background: var(--card); }
+  .lang button {
+    border: 0; background: transparent; color: var(--muted); font: inherit; font-size: 0.85rem; font-weight: 700;
+    padding: 6px 12px; cursor: pointer;
+  }
+  .lang button[aria-pressed="true"] { background: var(--accent); color: #fff; }
   @media (max-width: 600px) {
     .stop summary { max-width: 82%; }
     .dot { width: 44px; height: 44px; font-size: 1rem; }
@@ -147,286 +172,110 @@
 <body>
 <div class="wrap">
 
+<div class="topbar">
+  <a class="code-link" id="code-link" href="https://github.com/pittalavito/trader-slave-v2">
+    <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+    <span data-t="code"></span><span class="arrow" aria-hidden="true">&rarr;</span>
+  </a>
+  <div class="lang" role="group" aria-label="Lingua / Language">
+    <button type="button" data-lang="it">IT</button>
+    <button type="button" data-lang="en">EN</button>
+  </div>
+</div>
+
 <header>
-  <h1>Trader Slave · Roadmap</h1>
-  <p>Ultimo aggiornamento: 26 novembre 2026</p>
+  <h1 data-t="title"></h1>
+  <p id="updated"></p>
 </header>
 
-<p class="lead">
-  Questa è la guida di quello che facciamo, una fase alla volta. Ogni fase ha un obiettivo, un elenco di attività
-  e una condizione precisa per dire che è finita: si passa alla fase dopo solo quando quella condizione è vera.
-  Il principio che regge tutto: <strong>nessuna strategia tocca soldi veri prima di essere stata provata sui dati
-  storici e poi in simulazione</strong>.
-</p>
+<p class="lead" data-t="lead"></p>
 
-<div class="legend">
-  <span><span class="badge b-done">Fatto</span></span>
-  <span><span class="badge b-doing">In corso</span></span>
-  <span><span class="badge b-todo">Da fare</span></span>
-  <span><span class="badge b-guess">Ipotesi</span> proposta da confermare</span>
-</div>
+<div class="legend" id="legend"></div>
 
-<h2>Panoramica</h2>
-<ol class="overview">
-  <li><span class="n">0</span><a href="#fase-0">Fondamenta e server</a><span class="badge b-doing">In corso</span></li>
-  <li><span class="n">1</span><a href="#fase-1">Dati di mercato</a><span class="badge b-todo">Da fare</span></li>
-  <li><span class="n">2</span><a href="#fase-2">Motore di backtest</a><span class="badge b-todo">Da fare</span></li>
-  <li><span class="n">3</span><a href="#fase-3">Utenti, portafogli e ruoli</a><span class="badge b-todo">Da fare</span></li>
-  <li><span class="n">4</span><a href="#fase-4">Dashboard web</a><span class="badge b-todo">Da fare</span></li>
-  <li><span class="n">5</span><a href="#fase-5">Simulazione 24 ore su 24 (paper trading)</a><span class="badge b-todo">Da fare</span></li>
-  <li><span class="n">6</span><a href="#fase-6">Notifiche Telegram</a><span class="badge b-todo">Da fare</span></li>
-  <li><span class="n">7</span><a href="#fase-7">Regole delle strategie A e B</a><span class="badge b-todo">Da fare</span></li>
-  <li><span class="n">8</span><a href="#fase-8">Soldi veri: strategia B su Kraken</a><span class="badge b-todo">Da fare</span></li>
-  <li><span class="n">9</span><a href="#fase-9">Soldi veri: strategia A su Solana</a><span class="badge b-todo">Da fare</span></li>
-  <li><span class="n">10</span><a href="#fase-10">Apertura a utenti esterni e abbonamenti</a><span class="badge b-todo">Da fare</span></li>
-</ol>
+<h2 data-t="overview"></h2>
+<ol class="overview" id="overview"></ol>
 
-<h2>Le fasi</h2>
+<h2 data-t="phases"></h2>
+<p class="hint" data-t="hint"></p>
+<div class="road" id="road"><svg class="road-line" aria-hidden="true"></svg></div>
 
-<p class="hint">Clicca su una tappa per vedere attività e condizione di uscita.</p>
+<h2 data-t="deferred"></h2>
+<ul class="plain" id="deferred"></ul>
 
-<!-- Per aggiornare lo stato: cambia la classe dell'attività (done / doing), la classe della tappa
-     (stop done / doing / todo) e il suo badge. Il conteggio x/y si aggiorna da solo. -->
-<div class="road" id="road">
-<svg class="road-line" aria-hidden="true"></svg>
+<h2 data-t="outside"></h2>
+<ul class="plain" id="outside"></ul>
 
-<details class="stop doing" id="fase-0">
-  <summary><span class="dot">0</span><span class="label"><span class="title">Fondamenta e server</span><span class="meta"><span class="badge b-doing">In corso</span><span class="count">4/8</span></span></span></summary>
-  <div class="card">
-  <p class="goal">Avere le decisioni scritte, lo scheletro dell'app e un server che si aggiorna da solo a ogni modifica.</p>
-  <h4>Attività</h4>
-  <ul class="tasks">
-    <li class="done">Specifica funzionale: requisiti, ruoli, strategie A e B, blocchi di timeframe, regole di rischio</li>
-    <li class="done">Scheletro dell'app: backend Python con il motore a sei livelli, frontend React, Docker Compose, Caddy</li>
-    <li class="done">Controlli automatici (test e build) a ogni modifica e deploy automatico a ogni merge su <code>main</code></li>
-    <li class="done">Questa roadmap pubblicata su GitHub Pages</li>
-    <li class="doing">Comprare e preparare il VPS in Europa seguendo <a href="https://github.com/pittalavito/trader-slave-v2/blob/main/docs/server.md">la guida del server</a></li>
-    <li class="doing">Aggiungere su GitHub i secret <code>VPS_HOST</code>, <code>VPS_USER</code> e <code>VPS_SSH_KEY</code></li>
-    <li>Dominio e HTTPS (facoltativo ma consigliato)</li>
-    <li>Backup automatico giornaliero del database</li>
-  </ul>
-  <h4>Finita quando</h4>
-  <p class="exit">Un merge su <code>main</code> aggiorna il server da solo e la pagina dell'app risponde con lo stato dell'API "ok".</p>
-  </div>
-</details>
-
-<details class="stop todo" id="fase-1">
-  <summary><span class="dot">1</span><span class="label"><span class="title">Dati di mercato</span><span class="meta"><span class="badge b-todo">Da fare</span><span class="count">0/6</span></span></span></summary>
-  <div class="card">
-  <p class="goal">Avere nel database le candele storiche e aggiornate dei mercati che useremo, per tutti e tre i blocchi di timeframe.</p>
-  <h4>Attività</h4>
-  <ul class="tasks">
-    <li>Scaricare lo storico delle candele dei futures perpetui Kraken (per la strategia B)</li>
-    <li>Scaricare lo storico dei prezzi dei token sui DEX Solana (per la strategia A)</li>
-    <li>Salvare le candele in PostgreSQL, a partire da 1 minuto e ricavando 5m, 15m, 30m, 1h, 4h e 1g</li>
-    <li>Aggiornamento continuo: il worker aggiunge le nuove candele appena si chiudono</li>
-    <li>Controllo qualità: buchi nello storico, candele duplicate o sospette</li>
-    <li>Implementare il livello "dati di mercato" del motore leggendo dal database</li>
-  </ul>
-  <h4>Finita quando</h4>
-  <p class="exit">Ci sono almeno 12 mesi di candele a 1 minuto per i mercati di partenza, senza buchi, e il worker le aggiorna da solo.</p>
-  <p class="guess"><strong>Ipotesi:</strong> mercati di partenza SOL, BTC ed ETH; 12 mesi di storico; per Solana una fonte di dati come GeckoTerminal o Birdeye. Da scegliere all'inizio della fase.</p>
-  </div>
-</details>
-
-<details class="stop todo" id="fase-2">
-  <summary><span class="dot">2</span><span class="label"><span class="title">Motore di backtest</span><span class="meta"><span class="badge b-todo">Da fare</span><span class="count">0/8</span></span></span></summary>
-  <div class="card">
-  <p class="goal">Provare qualsiasi strategia sui dati del passato con costi realistici e leggere risultati di cui ci si può fidare.</p>
-  <h4>Attività</h4>
-  <ul class="tasks">
-    <li>Livelli comuni a tutte le strategie: rischio, dimensionamento, esecuzione simulata, portafoglio</li>
-    <li>Costi veri nel calcolo: commissioni, finanziamento dei perpetui, slittamento del prezzo</li>
-    <li>Long e short con leva e prezzo di liquidazione (ripreso dal vecchio progetto), leva massima 2x-3x</li>
-    <li>Metriche per operazione: profitto netto, durata, massimo guadagno e massima perdita non realizzati</li>
-    <li>Report: guadagno, calo massimo (drawdown), operazioni vinte, perse e liquidate, grafico del saldo</li>
-    <li>Registro di ogni decisione con il motivo</li>
-    <li>Portare la vecchia strategia a pattern come prima strategia di prova</li>
-    <li>Ritestare la strategia a pattern con commissioni e leva bassa</li>
-  </ul>
-  <h4>Finita quando</h4>
-  <p class="exit">Lanciamo un backtest della strategia a pattern su 12 mesi, con costi e leva 2x-3x, e otteniamo un report completo. Il risultato può anche essere negativo: conta che sia affidabile.</p>
-  </div>
-</details>
-
-<details class="stop todo" id="fase-3">
-  <summary><span class="dot">3</span><span class="label"><span class="title">Utenti, portafogli e ruoli</span><span class="meta"><span class="badge b-todo">Da fare</span><span class="count">0/6</span></span></span></summary>
-  <div class="card">
-  <p class="goal">Più utenti, ognuno con i suoi portafogli, completamente separati tra loro.</p>
-  <h4>Attività</h4>
-  <ul class="tasks">
-    <li>Accesso con credenziali e tre ruoli: amministratore, utente, osservatore in sola lettura</li>
-    <li>Portafogli simulati: nome, capitale, una o più strategie con la loro quota di capitale</li>
-    <li>Limiti di rischio per portafoglio: perdita massima giornaliera, leva, posizioni aperte</li>
-    <li>Invito di un osservatore su un portafoglio</li>
-    <li>Separazione totale: nessun utente vede i dati di un altro</li>
-    <li>Risultato netto di ogni operazione salvato per utente (servirà per la percentuale sulle vincite)</li>
-  </ul>
-  <h4>Finita quando</h4>
-  <p class="exit">Due utenti di prova creano i loro portafogli simulati e nessuno dei due vede quelli dell'altro; un osservatore vede solo il portafoglio a cui è invitato.</p>
-  </div>
-</details>
-
-<details class="stop todo" id="fase-4">
-  <summary><span class="dot">4</span><span class="label"><span class="title">Dashboard web</span><span class="meta"><span class="badge b-todo">Da fare</span><span class="count">0/5</span></span></span></summary>
-  <div class="card">
-  <p class="goal">Vedere e comandare tutto dal browser, senza toccare il codice.</p>
-  <h4>Attività</h4>
-  <ul class="tasks">
-    <li>Mercato: prezzi e grafici delle criptovalute osservate</li>
-    <li>Backtest: lanciarne uno scegliendo strategia, mercato e periodo, e leggerne il report</li>
-    <li>Portafogli: saldo, posizioni aperte, storico operazioni, andamento, risultati per strategia</li>
-    <li>Registro delle decisioni e degli ordini</li>
-    <li>Pagine di amministrazione: utenti e strategie disponibili</li>
-  </ul>
-  <h4>Finita quando</h4>
-  <p class="exit">Un utente fa tutto il percorso dal browser: crea un portafoglio, lancia un backtest e ne legge i risultati.</p>
-  </div>
-</details>
-
-<details class="stop todo" id="fase-5">
-  <summary><span class="dot">5</span><span class="label"><span class="title">Simulazione 24 ore su 24 (paper trading)</span><span class="meta"><span class="badge b-todo">Da fare</span><span class="count">0/7</span></span></span></summary>
-  <div class="card">
-  <p class="goal">Le strategie girano sui prezzi reali di oggi, sempre accese, senza mandare ordini veri.</p>
-  <h4>Attività</h4>
-  <ul class="tasks">
-    <li>Il worker esegue ogni strategia attiva alla chiusura di ogni candela del suo blocco (veloce, medio, lento)</li>
-    <li>Più strategie nello stesso portafoglio, ognuna con la sua quota di capitale</li>
-    <li>Freni che nessuna strategia può scavalcare: stop loss obbligatorio, perdita massima giornaliera, posizioni massime</li>
-    <li>Pulsante di emergenza: chiude tutto e ferma tutte le strategie</li>
-    <li>Avvio, pausa, stop e riconfigurazione di ogni strategia dalla dashboard</li>
-    <li>Confronto tra simulazione e backtest sullo stesso periodo</li>
-    <li>Accorgersi di connessione persa o dati fermi</li>
-  </ul>
-  <h4>Finita quando</h4>
-  <p class="exit">La strategia a pattern gira in simulazione per una settimana intera senza interruzioni e i suoi risultati sono coerenti con il backtest dello stesso periodo.</p>
-  </div>
-</details>
-
-<details class="stop todo" id="fase-6">
-  <summary><span class="dot">6</span><span class="label"><span class="title">Notifiche Telegram</span><span class="meta"><span class="badge b-todo">Da fare</span><span class="count">0/3</span></span></span></summary>
-  <div class="card">
-  <p class="goal">Sapere cosa succede senza aprire la dashboard.</p>
-  <h4>Attività</h4>
-  <ul class="tasks">
-    <li>Bot Telegram collegato a ogni utente</li>
-    <li>Avvisi immediati: operazione aperta o chiusa, stop scattato, limite di rischio raggiunto, errore, connessione persa</li>
-    <li>Riepilogo giornaliero per portafoglio</li>
-  </ul>
-  <h4>Finita quando</h4>
-  <p class="exit">Ogni evento importante della simulazione arriva su Telegram entro pochi secondi, e ogni giorno arriva il riepilogo.</p>
-  <p class="guess"><strong>Ipotesi:</strong> nella specifica le notifiche sono previste per la seconda versione; le metto prima dei soldi veri perché l'avviso di connessione persa serve quando ci sono posizioni aperte.</p>
-  </div>
-</details>
-
-<details class="stop todo" id="fase-7">
-  <summary><span class="dot">7</span><span class="label"><span class="title">Regole delle strategie A e B</span><span class="meta"><span class="badge b-todo">Da fare</span><span class="count">0/4</span></span></span></summary>
-  <div class="card">
-  <p class="goal">Definire le regole di entrata e uscita delle due strategie e dimostrare con i dati che funzionano.</p>
-  <h4>Attività</h4>
-  <ul class="tasks">
-    <li>Strategia B (futures perpetui Kraken, long e short): regole di entrata, uscita, stop loss e take profit</li>
-    <li>Strategia A (spot su DEX Solana): regole di entrata, uscita, stop loss e take profit</li>
-    <li>Scegliere i token su cui opera ciascuna</li>
-    <li>Backtest su 12 mesi con costi, poi simulazione sui prezzi reali</li>
-  </ul>
-  <h4>Finita quando</h4>
-  <p class="exit">Ogni strategia ha un backtest positivo al netto dei costi e un periodo di simulazione con risultati coerenti, e Vito decide di passarla ai soldi veri.</p>
-  <p class="guess"><strong>Ipotesi:</strong> le regole sono rimandate a questa fase; si parte dalla strategia a pattern e da strategie note. Durata minima della simulazione proposta: 4 settimane. Questa fase può iniziare in parallelo alle fasi 3-6, appena il backtest è pronto.</p>
-  </div>
-</details>
-
-<details class="stop todo" id="fase-8">
-  <summary><span class="dot">8</span><span class="label"><span class="title">Soldi veri: strategia B su Kraken</span><span class="meta"><span class="badge b-todo">Da fare</span><span class="count">0/6</span></span></span></summary>
-  <div class="card">
-  <p class="goal">La strategia B opera con soldi veri sul conto Kraken, con un capitale piccolo e tutti i freni attivi.</p>
-  <h4>Attività</h4>
-  <ul class="tasks">
-    <li>Verificare i requisiti Kraken per i clienti italiani e i tassi di finanziamento reali</li>
-    <li>Collegare il conto Kraken del portafoglio con chiavi API cifrate, senza permesso di prelievo e limitate all'IP del server</li>
-    <li>Livello di esecuzione reale: ordini, stop sul conto, riconciliazione tra posizioni dell'app e del conto</li>
-    <li>Leva bloccata a 2x-3x nell'app</li>
-    <li>Passaggio da simulato a reale sempre manuale, con conferma esplicita</li>
-    <li>Partire con un capitale piccolo e confrontare ogni settimana con la simulazione</li>
-  </ul>
-  <h4>Finita quando</h4>
-  <p class="exit">La strategia B gira per un mese con soldi veri, senza differenze inspiegate tra i conti dell'app e quelli di Kraken.</p>
-  <p class="guess"><strong>Ipotesi:</strong> metto Kraken prima di Solana perché le chiavi API si possono limitare all'IP del server e gli ordini sono più semplici da gestire. L'ordine si può invertire.</p>
-  </div>
-</details>
-
-<details class="stop todo" id="fase-9">
-  <summary><span class="dot">9</span><span class="label"><span class="title">Soldi veri: strategia A su Solana</span><span class="meta"><span class="badge b-todo">Da fare</span><span class="count">0/5</span></span></span></summary>
-  <div class="card">
-  <p class="goal">La strategia A compra e vende spot su un DEX Solana dal wallet dedicato del portafoglio.</p>
-  <h4>Attività</h4>
-  <ul class="tasks">
-    <li>Wallet Solana dedicato con dentro solo il capitale della strategia</li>
-    <li>Custodia sicura della chiave del wallet sul server</li>
-    <li>Livello di esecuzione: scambi sul DEX con limite di slittamento, conferma delle transazioni, gestione dei fallimenti</li>
-    <li>Riconciliazione tra saldo del wallet e conti dell'app</li>
-    <li>Partire con un capitale piccolo</li>
-  </ul>
-  <h4>Finita quando</h4>
-  <p class="exit">La strategia A gira per un mese con soldi veri e il saldo del wallet corrisponde sempre a quello dell'app.</p>
-  <p class="guess"><strong>Ipotesi:</strong> gli scambi passano da un aggregatore come Jupiter, che trova il prezzo migliore tra i DEX Solana. Da decidere all'inizio della fase.</p>
-  </div>
-</details>
-
-<details class="stop todo" id="fase-10">
-  <summary><span class="dot">10</span><span class="label"><span class="title">Apertura a utenti esterni e abbonamenti</span><span class="meta"><span class="badge b-todo">Da fare</span><span class="count">0/6</span></span></span></summary>
-  <div class="card">
-  <p class="goal">Far usare l'app a utenti paganti, ognuno sui propri conti.</p>
-  <h4>Attività</h4>
-  <ul class="tasks">
-    <li>Verifica con un consulente: se la percentuale sulle vincite rende l'app un'attività finanziaria regolamentata</li>
-    <li>Termini di servizio e privacy</li>
-    <li>Registrazione e collegamento guidato dei conti per i nuovi utenti</li>
-    <li>Abbonamento mensile con pagamento online</li>
-    <li>Percentuale sulle operazioni vincenti, quando l'app è completamente automatica (calcolo da definire)</li>
-    <li>Strumenti di assistenza per l'amministratore</li>
-  </ul>
-  <h4>Finita quando</h4>
-  <p class="exit">Un utente esterno si registra, collega i suoi conti, paga l'abbonamento e usa l'app senza il nostro aiuto.</p>
-  </div>
-</details>
-</div>
-
-<h2>Decisioni rimandate</h2>
-<ul class="plain">
-  <li>Regole di entrata e uscita delle strategie: si definiscono nella fase 7.</li>
-  <li>Come si calcola la percentuale sulle vincite: nella fase 10, dopo la verifica legale.</li>
-  <li>Su quali token opera ogni strategia: dopo i test della fase 7.</li>
-</ul>
-
-<h2>Fuori da questa roadmap, per ora</h2>
-<ul class="plain">
-  <li>Strategie basate su intelligenza artificiale o notizie.</li>
-  <li>App per smartphone: basta la dashboard da browser.</li>
-  <li>Exchange e wallet oltre a Kraken e Solana.</li>
-  <li>Mercati diversi dalle criptovalute.</li>
-</ul>
-
-<footer>
-  Basata sulla <a href="https://claude.ai/artifact/QbHTxeAStTcgdfRhqdpwrE">specifica funzionale</a>.
-  Codice su <a href="https://github.com/pittalavito/trader-slave-v2">GitHub</a>.
-  Per modificare questa pagina: <code>site/index.html</code>.
-</footer>
+<footer data-t="footer"></footer>
 
 </div>
+<script src="roadmap.js"></script>
 <script>
 (function () {
+  var R = window.ROADMAP;
+  var NS = 'http://www.w3.org/2000/svg';
   var road = document.getElementById('road');
   var svg = road.querySelector('.road-line');
-  var stops = Array.prototype.slice.call(road.querySelectorAll('.stop'));
-  var NS = 'http://www.w3.org/2000/svg';
+  var lang = 'it';
+  var openIds = {};
+
+  function pick() {
+    var q = new URLSearchParams(location.search).get('lang');
+    if (q === 'it' || q === 'en') return q;
+    try { var saved = localStorage.getItem('roadmap-lang'); if (saved === 'it' || saved === 'en') return saved; } catch (e) {}
+    return (navigator.language || 'it').toLowerCase().indexOf('it') === 0 ? 'it' : 'en';
+  }
+  function t(obj) { return obj ? (obj[lang] || obj.it) : ''; }
+  function badge(status) { return '<span class="badge b-' + status + '">' + t(R.ui.status[status]) + '</span>'; }
+
+  function render() {
+    document.documentElement.lang = lang;
+    document.title = t(R.ui.title);
+    document.querySelectorAll('[data-t]').forEach(function (el) { el.innerHTML = t(R.ui[el.getAttribute('data-t')]); });
+    document.querySelectorAll('.lang button').forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-lang') === lang)); });
+    document.getElementById('code-link').href = R.repo;
+    document.getElementById('updated').textContent = t(R.updated);
+
+    document.getElementById('legend').innerHTML =
+      ['done', 'doing', 'next', 'paused', 'todo'].map(function (s) { return '<span>' + badge(s) + '</span>'; }).join('') +
+      '<span><span class="badge b-guess">' + t(R.ui.guessLabel) + '</span> ' + t(R.ui.guessLegend) + '</span>';
+
+    document.getElementById('overview').innerHTML = R.phases.map(function (p, i) {
+      return '<li><span class="n">' + i + '</span><a href="#fase-' + i + '">' + t(p.title) + '</a>' + badge(p.status || 'todo') + '</li>';
+    }).join('');
+
+    road.querySelectorAll('.stop').forEach(function (el) { el.remove(); });
+    R.phases.forEach(function (p, i) {
+      var status = p.status || 'todo';
+      var done = p.tasks.filter(function (x) { return x.s === 'done'; }).length;
+      var d = document.createElement('details');
+      d.className = 'stop ' + status;
+      d.id = 'fase-' + i;
+      if (openIds[d.id]) d.open = true;
+      d.innerHTML =
+        '<summary><span class="dot">' + i + '</span><span class="label"><span class="title">' + t(p.title) + '</span>' +
+        '<span class="meta">' + badge(status) + '<span class="count">' + done + '/' + p.tasks.length + '</span></span></span></summary>' +
+        '<div class="card"><p class="goal">' + t(p.goal) + '</p>' +
+        '<h4>' + t(R.ui.tasks) + '</h4><ul class="tasks">' +
+        p.tasks.map(function (x) { return '<li' + (x.s && x.s !== 'todo' ? ' class="' + x.s + '"' : '') + '>' + t(x) + '</li>'; }).join('') +
+        '</ul><h4>' + t(R.ui.exit) + '</h4><p class="exit">' + t(p.exit) + '</p>' +
+        (p.guess ? '<p class="guess"><strong>' + t(R.ui.guessLabel) + ':</strong> ' + t(p.guess) + '</p>' : '') +
+        '</div>';
+      d.addEventListener('toggle', function () { openIds[d.id] = d.open; draw(); });
+      road.appendChild(d);
+    });
+
+    document.getElementById('deferred').innerHTML = R.deferred.map(function (x) { return '<li>' + t(x) + '</li>'; }).join('');
+    document.getElementById('outside').innerHTML = R.outside.map(function (x) { return '<li>' + t(x) + '</li>'; }).join('');
+    draw();
+  }
 
   function draw() {
+    var stops = Array.prototype.slice.call(road.querySelectorAll('.stop'));
     var box = road.getBoundingClientRect();
     var pts = stops.map(function (st) {
       var r = st.querySelector('.dot').getBoundingClientRect();
-      return { x: r.left + r.width / 2 - box.left, y: r.top + r.height / 2 - box.top,
-               s: st.classList.contains('done') ? 'done' : st.classList.contains('doing') ? 'doing' : 'todo' };
+      var s = ['done', 'doing', 'next', 'paused'].filter(function (c) { return st.classList.contains(c); })[0] || 'todo';
+      return { x: r.left + r.width / 2 - box.left, y: r.top + r.height / 2 - box.top, s: s };
     });
     while (svg.firstChild) svg.removeChild(svg.firstChild);
     var layers = { track: [], fill: [], lane: [] };
@@ -435,8 +284,9 @@
       // Curva a S con tangenti verticali: la strada scende da una tappa e gira verso la successiva.
       var d = 'M' + a.x + ' ' + a.y + ' C' + a.x + ' ' + (a.y + k) + ' ' + b.x + ' ' + (b.y - k) + ' ' + b.x + ' ' + b.y;
       layers.track.push([d, 'track']);
-      // Il tratto si colora se la tappa da cui parte è finita (verde) o in corso (arancione).
-      if (a.s !== 'todo') layers.fill.push([d, 'fill-' + a.s]);
+      // Verde dopo una tappa finita, arancione verso la tappa in corso o prossima.
+      if (a.s === 'done') layers.fill.push([d, 'fill-done']);
+      else if (a.s === 'doing') layers.fill.push([d, 'fill-doing']);
       layers.lane.push([d, 'lane']);
     }
     ['track', 'fill', 'lane'].forEach(function (name) {
@@ -454,12 +304,20 @@
     if (el && el.tagName === 'DETAILS') { el.open = true; el.scrollIntoView({ block: 'start' }); }
   }
 
-  stops.forEach(function (st) { st.addEventListener('toggle', draw); });
+  document.querySelectorAll('.lang button').forEach(function (b) {
+    b.addEventListener('click', function () {
+      lang = b.getAttribute('data-lang');
+      try { localStorage.setItem('roadmap-lang', lang); } catch (e) {}
+      render();
+    });
+  });
   window.addEventListener('resize', draw);
   window.addEventListener('hashchange', openHash);
-  openHash();
-  draw();
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(draw);
+
+  lang = pick();
+  render();
+  openHash();
 })();
 </script>
 </body>
