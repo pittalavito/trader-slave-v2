@@ -12,6 +12,7 @@ import signal
 from app.core.config import get_settings
 from app.core.container import Container, build_container
 from app.core.observability import configure_observability, get_logger
+from app.core.runtime import run_async
 from app.engine.commands import CommandListener, EngineCommand
 
 log = get_logger("worker")
@@ -37,7 +38,11 @@ async def main() -> None:
     stop = asyncio.Event()
     loop = asyncio.get_running_loop()
     for sig in (signal.SIGTERM, signal.SIGINT):
-        loop.add_signal_handler(sig, stop.set)
+        try:
+            loop.add_signal_handler(sig, stop.set)
+        except NotImplementedError:
+            # Windows has no add_signal_handler: fall back to a plain signal handler.
+            signal.signal(sig, lambda *_: loop.call_soon_threadsafe(stop.set))
 
     listener = CommandListener(container.session_factory, settings.database_url, handle_command, container.clock)
     log.info("engine.started", tick_seconds=settings.engine_tick_seconds)
@@ -49,4 +54,4 @@ async def main() -> None:
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    run_async(main())

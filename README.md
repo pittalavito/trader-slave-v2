@@ -33,7 +33,7 @@ Backend (serve [uv](https://docs.astral.sh/uv/) e Docker per il database):
 docker compose up -d db          # PostgreSQL con TimescaleDB
 cd backend
 uv sync                          # installa le dipendenze bloccate in uv.lock
-export DATABASE_URL=postgresql+psycopg://trader:<POSTGRES_PASSWORD>@localhost:5432/trader
+export DATABASE_URL=postgresql+psycopg://trader:<POSTGRES_PASSWORD>@127.0.0.1:5432/trader
 uv run alembic upgrade head      # crea le tabelle
 uv run uvicorn app.main:app --reload
 ```

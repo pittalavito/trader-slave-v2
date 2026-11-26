@@ -4,7 +4,9 @@ Locally: `docker compose up -d db`, then `uv run pytest`.
 Override the URL with TEST_DATABASE_URL.
 """
 
+import asyncio
 import os
+import sys
 from collections.abc import AsyncIterator, Iterator
 from datetime import UTC, datetime
 
@@ -20,8 +22,12 @@ from app.core.config import Settings
 from app.core.container import Container, build_container
 from app.main import create_app
 
-TEST_DATABASE_URL = os.environ.get("TEST_DATABASE_URL", "postgresql+psycopg://trader:trader@localhost:5432/trader_test")
+TEST_DATABASE_URL = os.environ.get("TEST_DATABASE_URL", "postgresql+psycopg://trader:trader@127.0.0.1:5432/trader_test")
 START = datetime(2026, 1, 1, tzinfo=UTC)
+
+if sys.platform == "win32":
+    # psycopg async does not work with the default Windows loop (see app.core.runtime).
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 
 def _alembic_config() -> Config:
