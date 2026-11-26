@@ -7,7 +7,7 @@ from alembic import context
 from app.core.config import get_settings
 from app.db.models import Base
 from app.db.session import create_engine
-
+## TODO BACK END: cosa è alembic ?
 config = context.config
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)

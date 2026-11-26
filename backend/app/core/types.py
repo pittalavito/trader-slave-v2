@@ -20,20 +20,21 @@ PortfolioId = NewType("PortfolioId", int)
 StrategyId = NewType("StrategyId", int)
 CommandId = NewType("CommandId", int)
 
+## TODO BACK END: java doc solo in inglese su tutto progetto
 
 @dataclass(frozen=True, slots=True)
 class Money:
-    """Un importo con la sua valuta. Mai float: sempre Decimal."""
+    """An amount with its currency. Never float: always Decimal."""
 
     amount: Decimal
     currency: str
 
     def __post_init__(self) -> None:
         if not isinstance(self.amount, Decimal):
-            raise ValidationError("L'importo deve essere un Decimal", code="money_not_decimal")
+            raise ValidationError("Amount must be a Decimal", code="money_not_decimal")
         if not self.currency or self.currency != self.currency.upper():
             raise ValidationError(
-                "Valuta non valida", code="invalid_currency", details={"currency": self.currency}
+                "Invalid currency", code="invalid_currency", details={"currency": self.currency}
             )
 
     @classmethod
@@ -43,7 +44,7 @@ class Money:
     def _same_currency(self, other: Money) -> None:
         if other.currency != self.currency:
             raise DomainError(
-                "Non si possono combinare valute diverse",
+                "Cannot combine different currencies",
                 code="currency_mismatch",
                 details={"left": self.currency, "right": other.currency},
             )
@@ -58,7 +59,7 @@ class Money:
 
     def __mul__(self, factor: Decimal | int) -> Money:
         if isinstance(factor, float):
-            raise ValidationError("Niente float con i soldi", code="money_float_factor")
+            raise ValidationError("No float allowed with money", code="money_float_factor")
         return Money(self.amount * Decimal(factor), self.currency)
 
     def __neg__(self) -> Money:
@@ -78,7 +79,7 @@ class Money:
 
 @dataclass(frozen=True, slots=True)
 class Symbol:
-    """Una coppia di trading, per esempio SOL/USDC o BTC/USD."""
+    """A trading pair, for example SOL/USDC or BTC/USD."""
 
     base: str
     quote: str
@@ -87,7 +88,7 @@ class Symbol:
     def parse(cls, value: str) -> Symbol:
         parts = value.upper().split("/")
         if len(parts) != 2 or not all(parts):
-            raise ValidationError("Simbolo non valido, serve la forma BASE/QUOTE", details={"symbol": value})
+            raise ValidationError("Invalid symbol, must be in the form BASE/QUOTE", details={"symbol": value})
         return cls(parts[0], parts[1])
 
     def __str__(self) -> str:
@@ -95,11 +96,11 @@ class Symbol:
 
 
 class TimeframeBlock(StrEnum):
-    """I tre blocchi di timeframe della specifica funzionale."""
+    """The three timeframe blocks of the functional specification."""
 
-    FAST = "fast"  # 1-3 minuti
-    MEDIUM = "medium"  # 5-30 minuti
-    SLOW = "slow"  # da 1 ora a 1 giorno
+    FAST = "fast"  # 1-3 minutes
+    MEDIUM = "medium"  # 5-30 minutes
+    SLOW = "slow"  # from 1 hour to 1 day
 
 
 class Timeframe(StrEnum):

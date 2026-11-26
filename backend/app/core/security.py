@@ -99,3 +99,5 @@ class SecretBox:
             raise DomainError(
                 "Segreto non decifrabile con la chiave attuale", code="secret_undecryptable"
             ) from exc
+
+## TODO BACK END: messaggi errore in inglese su tutto il progetto 

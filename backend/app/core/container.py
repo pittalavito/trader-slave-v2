@@ -29,9 +29,7 @@ class Container:
     secrets: SecretBox = field(init=False)
 
     def __post_init__(self) -> None:
-        self.tokens = TokenService(
-            self.settings.jwt_secret.get_secret_value(), self.settings.jwt_expire_minutes, self.clock
-        )
+        self.tokens = TokenService(self.settings.jwt_secret.get_secret_value(), self.settings.jwt_expire_minutes, self.clock)
         key = self.settings.secrets_key
         self.secrets = SecretBox(key.get_secret_value() if key else None)
 
