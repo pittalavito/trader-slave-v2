@@ -1,8 +1,8 @@
-"""Tipi comuni a tutto il backend.
+"""Types shared by the whole backend.
 
-Servono a far fermare a mypy errori che con tipi generici passerebbero:
-sommare euro e dollari, passare l'id di un utente dove serve quello di un
-portafoglio, scrivere un timeframe inesistente.
+They let mypy stop mistakes that generic types would let through: adding euros
+to dollars, passing a user id where a portfolio id is expected, writing a
+timeframe that does not exist.
 """
 
 from __future__ import annotations
@@ -14,13 +14,12 @@ from typing import NewType
 
 from app.core.errors import DomainError, ValidationError
 
-# Id distinti per entità: per mypy un UserId non è un PortfolioId.
+# One id type per entity: for mypy a UserId is not a PortfolioId.
 UserId = NewType("UserId", int)
 PortfolioId = NewType("PortfolioId", int)
 StrategyId = NewType("StrategyId", int)
 CommandId = NewType("CommandId", int)
 
-## TODO BACK END: java doc solo in inglese su tutto progetto
 
 @dataclass(frozen=True, slots=True)
 class Money:
@@ -33,9 +32,7 @@ class Money:
         if not isinstance(self.amount, Decimal):
             raise ValidationError("Amount must be a Decimal", code="money_not_decimal")
         if not self.currency or self.currency != self.currency.upper():
-            raise ValidationError(
-                "Invalid currency", code="invalid_currency", details={"currency": self.currency}
-            )
+            raise ValidationError("Invalid currency", code="invalid_currency", details={"currency": self.currency})
 
     @classmethod
     def zero(cls, currency: str) -> Money:

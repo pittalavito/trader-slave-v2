@@ -1,6 +1,6 @@
-"""La logica dell'app, divisa per area.
+"""Business logic, split by area.
 
-Ogni area ha la stessa forma: `models.py` (tabelle), `schemas.py` (dati in
-entrata e uscita dall'API, Pydantic), `service.py` (logica), `repository.py`
-(query). Gli endpoint in `app.api` chiamano solo i service.
+Every area has the same shape: `models.py` (tables), `schemas.py` (API input and
+output, Pydantic), `service.py` (logic), `repository.py` (queries).
+Endpoints in `app.api` only call services.
 """

@@ -1,4 +1,4 @@
-"""Password, token di accesso e cifratura dei segreti degli utenti."""
+"""Passwords, access tokens and encryption of user secrets."""
 
 from datetime import UTC, datetime, timedelta
 from enum import StrEnum
@@ -22,7 +22,7 @@ class Role(StrEnum):
 
 
 class PasswordHasher:
-    """Password salvate con argon2, mai in chiaro."""
+    """Passwords stored with argon2, never in clear text."""
 
     def __init__(self) -> None:
         self._hasher = PasswordHash.recommended()
@@ -43,7 +43,7 @@ class TokenPayload(BaseModel):
 
 
 class TokenService:
-    """Crea e verifica i token JWT di accesso."""
+    """Creates and verifies JWT access tokens."""
 
     def __init__(self, secret: str, expire_minutes: int, clock: Clock) -> None:
         self._secret = secret
@@ -61,7 +61,7 @@ class TokenService:
                 token,
                 self._secret,
                 algorithms=[_JWT_ALGORITHM],
-                # La scadenza la controlliamo noi con il nostro orologio, così vale anche nei test.
+                # Expiry is checked by us with our own clock, so it also works in tests.
                 options={"verify_exp": False, "require": ["sub", "role", "exp"]},
             )
             payload = TokenPayload(
@@ -70,23 +70,21 @@ class TokenService:
                 expires_at=datetime.fromtimestamp(claims["exp"], tz=UTC),
             )
         except (jwt.PyJWTError, ValueError, KeyError) as exc:
-            raise AuthenticationError("Token non valido", code="invalid_token") from exc
+            raise AuthenticationError("Invalid token", code="invalid_token") from exc
         if payload.expires_at <= self._clock.now():
-            raise AuthenticationError("Token scaduto", code="token_expired")
+            raise AuthenticationError("Token expired", code="token_expired")
         return payload
 
 
 class SecretBox:
-    """Cifra e decifra le chiavi API e dei wallet salvate nel database."""
+    """Encrypts and decrypts API and wallet keys stored in the database."""
 
     def __init__(self, key: str | None) -> None:
         self._fernet = Fernet(key.encode()) if key else None
 
     def _require(self) -> Fernet:
         if self._fernet is None:
-            raise DomainError(
-                "SECRETS_KEY non configurata: impossibile salvare segreti", code="secrets_key_missing"
-            )
+            raise DomainError("SECRETS_KEY is not configured: cannot store secrets", code="secrets_key_missing")
         return self._fernet
 
     def encrypt(self, plaintext: str) -> str:
@@ -96,8 +94,4 @@ class SecretBox:
         try:
             return self._require().decrypt(ciphertext.encode()).decode()
         except InvalidToken as exc:
-            raise DomainError(
-                "Segreto non decifrabile con la chiave attuale", code="secret_undecryptable"
-            ) from exc
-
-## TODO BACK END: messaggi errore in inglese su tutto il progetto 
+            raise DomainError("Secret cannot be decrypted with the current key", code="secret_undecryptable") from exc

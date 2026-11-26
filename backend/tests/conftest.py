@@ -1,7 +1,7 @@
-"""Fixture comuni. I test sul database usano un Postgres vero con TimescaleDB.
+"""Shared fixtures. Database tests use a real Postgres with TimescaleDB.
 
-In locale: `docker compose up -d db` e poi `uv run pytest`.
-L'URL si cambia con TEST_DATABASE_URL.
+Locally: `docker compose up -d db`, then `uv run pytest`.
+Override the URL with TEST_DATABASE_URL.
 """
 
 import os
@@ -20,9 +20,7 @@ from app.core.config import Settings
 from app.core.container import Container, build_container
 from app.main import create_app
 
-TEST_DATABASE_URL = os.environ.get(
-    "TEST_DATABASE_URL", "postgresql+psycopg://trader:trader@localhost:5432/trader_test"
-)
+TEST_DATABASE_URL = os.environ.get("TEST_DATABASE_URL", "postgresql+psycopg://trader:trader@localhost:5432/trader_test")
 START = datetime(2026, 1, 1, tzinfo=UTC)
 
 

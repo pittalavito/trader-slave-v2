@@ -1,11 +1,11 @@
-"""Classe base dei modelli SQLAlchemy, comune a tutti i moduli."""
+"""Base class of the SQLAlchemy models, shared by all modules."""
 
 from datetime import datetime
 
 from sqlalchemy import DateTime, MetaData, func
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
-# Nomi stabili per indici e vincoli: le migrazioni restano leggibili e ripetibili.
+# Stable names for indexes and constraints: migrations stay readable and repeatable.
 NAMING_CONVENTION = {
     "ix": "ix_%(column_0_label)s",
     "uq": "uq_%(table_name)s_%(column_0_name)s",

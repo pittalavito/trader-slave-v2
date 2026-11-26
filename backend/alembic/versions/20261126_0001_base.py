@@ -1,4 +1,4 @@
-"""Base: estensione TimescaleDB, utenti e comandi del motore.
+"""Base: TimescaleDB extension, users and engine commands.
 
 Revision ID: 0001
 Revises:
@@ -18,14 +18,12 @@ branch_labels: str | Sequence[str] | None = None
 depends_on: str | Sequence[str] | None = None
 
 user_role = postgresql.ENUM("admin", "user", "observer", name="user_role", create_type=False)
-command_kind = postgresql.ENUM(
-    "start", "stop", "emergency_stop", "reload", name="engine_command_kind", create_type=False
-)
+command_kind = postgresql.ENUM("start", "stop", "emergency_stop", "reload", name="engine_command_kind", create_type=False)
 command_status = postgresql.ENUM("pending", "done", "failed", name="engine_command_status", create_type=False)
 
 
 def upgrade() -> None:
-    # TimescaleDB serve dalla fase "Dati di mercato" per le candele.
+    # TimescaleDB is needed from the "Market data" phase on, for candles.
     op.execute("CREATE EXTENSION IF NOT EXISTS timescaledb")
 
     user_role.create(op.get_bind(), checkfirst=True)

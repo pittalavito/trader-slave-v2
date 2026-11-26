@@ -1,4 +1,4 @@
-"""Interfacce comuni dei client."""
+"""Shared client interfaces."""
 
 from datetime import datetime
 from typing import Protocol
@@ -8,7 +8,7 @@ from app.engine.models import Candle, OrderRequest, Position
 
 
 class MarketDataClient(Protocol):
-    """Fornisce le candele di un mercato."""
+    """Provides the candles of a market."""
 
     async def fetch_candles(
         self, symbol: Symbol, timeframe: Timeframe, since: datetime | None = None, limit: int = 500
@@ -16,7 +16,7 @@ class MarketDataClient(Protocol):
 
 
 class TradingClient(Protocol):
-    """Apre e chiude posizioni su un conto."""
+    """Opens and closes positions on an account."""
 
     async def open_position(self, order: OrderRequest) -> Position: ...
 

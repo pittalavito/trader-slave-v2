@@ -1,1 +1,1 @@
-"""Notifiche Telegram. Si riempie nella fase "Notifiche Telegram"."""
+"""Telegram notifications. Filled in during the "Telegram notifications" phase."""

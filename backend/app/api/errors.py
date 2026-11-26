@@ -1,4 +1,4 @@
-"""Traduce le eccezioni dell'app in risposte HTTP, in un solo punto."""
+"""Turns app exceptions into HTTP responses, in a single place."""
 
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
@@ -16,7 +16,7 @@ async def _app_error_handler(_: Request, exc: Exception) -> JSONResponse:
 
 async def _unexpected_error_handler(_: Request, exc: Exception) -> JSONResponse:
     log.error("api.unexpected_error", exc_info=exc)
-    body = {"error": {"code": "internal_error", "message": "Errore interno", "details": {}}}
+    body = {"error": {"code": "internal_error", "message": "Internal error", "details": {}}}
     return JSONResponse(status_code=500, content=body)
 
 

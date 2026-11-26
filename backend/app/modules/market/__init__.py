@@ -1,1 +1,1 @@
-"""Candele, simboli e aggiornamento dei dati. Si riempie nella fase "Dati di mercato"."""
+"""Candles, symbols and data updates. Filled in during the "Market data" phase."""

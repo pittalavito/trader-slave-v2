@@ -1,6 +1,6 @@
-"""Avvio dell'API."""
+"""API entry point."""
 
-from collections.abc import AsyncIterator, Awaitable, Callable
+from collections.abc import AsyncGenerator, Awaitable, Callable
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request, Response
@@ -16,10 +16,8 @@ def create_app(settings: Settings | None = None, container: Container | None = N
     settings = settings or get_settings()
 
     @asynccontextmanager
-    async def lifespan(app: FastAPI) -> AsyncIterator[None]:
-        configure_observability(
-            level=settings.log_level, json_logs=settings.is_production, otel_console=settings.otel_console
-        )
+    async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
+        configure_observability(level=settings.log_level, json_logs=settings.is_production, otel_console=settings.otel_console)
         app.state.container = container or build_container(settings)
         yield
         await app.state.container.close()
@@ -28,9 +26,7 @@ def create_app(settings: Settings | None = None, container: Container | None = N
     install_error_handlers(app)
 
     @app.middleware("http")
-    async def correlation_middleware(
-        request: Request, call_next: Callable[[Request], Awaitable[Response]]
-    ) -> Response:
+    async def correlation_middleware(request: Request, call_next: Callable[[Request], Awaitable[Response]]) -> Response:
         with correlation_scope(request.headers.get("x-request-id"), path=request.url.path) as cid:
             response = await call_next(request)
         response.headers["x-request-id"] = cid

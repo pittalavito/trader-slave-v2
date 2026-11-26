@@ -1,6 +1,6 @@
-"""Wallet Solana e scambi spot sui DEX.
+"""Solana wallet and spot swaps on DEXs.
 
-La libreria si sceglie all'inizio della fase "Soldi veri: strategia A su
-Solana" (vedi docs/architettura-backend.md). Il client dovrà rispettare
+The library is chosen at the start of the "Real money: strategy A on Solana"
+phase (see docs/architettura-backend.md). The client must implement
 `app.clients.base.TradingClient`.
 """

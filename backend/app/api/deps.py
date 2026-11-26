@@ -1,4 +1,4 @@
-"""Dipendenze FastAPI: prendono i componenti dal container. Usate solo negli endpoint."""
+"""FastAPI dependencies: they take components from the container. Used in endpoints only."""
 
 from collections.abc import AsyncIterator
 from typing import Annotated

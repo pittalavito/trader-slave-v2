@@ -1,4 +1,4 @@
-"""Importa tutti i modelli, così Alembic e i test vedono tutte le tabelle."""
+"""Imports every model, so Alembic and the tests see all tables."""
 
 from app.db.base import Base
 from app.engine.commands import EngineCommand

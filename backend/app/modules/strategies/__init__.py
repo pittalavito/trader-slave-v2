@@ -1,1 +1,1 @@
-"""Le strategie, cioè il livello del segnale: una per file."""
+"""Strategies, i.e. the signal layer: one per file."""

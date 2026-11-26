@@ -1,4 +1,4 @@
-"""Configurazione letta dalle variabili d'ambiente (vedi .env.example)."""
+"""Settings read from environment variables (see .env.example)."""
 
 from functools import lru_cache
 from typing import Literal
@@ -17,18 +17,18 @@ class Settings(BaseSettings):
 
     database_url: str = "postgresql+psycopg://trader:trader@db:5432/trader"
 
-    # Ogni quanti secondi il motore controlla se una candela si è chiusa.
+    # How often (seconds) the engine checks whether a candle has closed.
     engine_tick_seconds: int = 60
 
-    # Firma dei token di accesso. In produzione va sempre cambiata.
+    # Signing key of access tokens. Must always be changed in production.
     jwt_secret: SecretStr = SecretStr(_DEFAULT_JWT_SECRET)
     jwt_expire_minutes: int = 60
 
-    # Chiave Fernet che cifra le chiavi API e dei wallet nel database.
-    # Si genera con: python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
+    # Fernet key that encrypts API and wallet keys in the database.
+    # Generate it with: python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
     secrets_key: SecretStr | None = None
 
-    # Se vero, le tracce OpenTelemetry vengono stampate sulla console.
+    # If true, OpenTelemetry spans are printed to the console.
     otel_console: bool = False
 
     @model_validator(mode="after")
@@ -36,7 +36,7 @@ class Settings(BaseSettings):
         if self.app_env == "production":
             secret = self.jwt_secret.get_secret_value()
             if secret == _DEFAULT_JWT_SECRET or len(secret) < 32:
-                raise ValueError("In produzione JWT_SECRET va impostato, lungo almeno 32 caratteri")
+                raise ValueError("In production JWT_SECRET must be set and at least 32 characters long")
         return self
 
     @property

@@ -1,1 +1,1 @@
-"""Esecuzione e report dei backtest. Si riempie nella fase "Motore di backtest"."""
+"""Backtest runs and reports. Filled in during the "Backtest engine" phase."""

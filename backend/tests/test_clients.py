@@ -22,9 +22,7 @@ class FakeExchange:
         self.error = error
         self.calls: list[tuple[str, str]] = []
 
-    async def fetch_ohlcv(
-        self, symbol: str, timeframe: str, since: int | None, limit: int
-    ) -> list[list[Any]]:
+    async def fetch_ohlcv(self, symbol: str, timeframe: str, since: int | None, limit: int) -> list[list[Any]]:
         self.calls.append((symbol, timeframe))
         if self.error:
             raise self.error
@@ -39,11 +37,7 @@ async def test_kraken_maps_ohlcv_to_decimal_candles() -> None:
     fake = FakeExchange([[ts, 100.1, 101.2, 99.3, 100.4, 12.5]])
     candles = await KrakenFuturesClient(fake).fetch_candles(BTC, Timeframe.M5)
     assert fake.calls == [("BTC/USD:USD", "5m")]
-    assert candles == [
-        Candle(
-            BTC, START, Decimal("100.1"), Decimal("101.2"), Decimal("99.3"), Decimal("100.4"), Decimal("12.5")
-        )
-    ]
+    assert candles == [Candle(BTC, START, Decimal("100.1"), Decimal("101.2"), Decimal("99.3"), Decimal("100.4"), Decimal("12.5"))]
 
 
 async def test_kraken_errors_become_external_service_errors() -> None:
