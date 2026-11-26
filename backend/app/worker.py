@@ -1,40 +1,58 @@
-"""Processo del motore dei bot, separato dall'API.
+"""Processo del motore, separato dall'API e sempre acceso.
 
-Per ora non ci sono bot configurati: il processo resta acceso e registra
-un battito a ogni ciclo, così si può verificare che il deploy funzioni.
+Per ora ascolta i comandi dall'API e registra un battito a ogni ciclo.
+Dalla fase "Simulazione 24 ore su 24" eseguirà le strategie attive
+alla chiusura di ogni candela.
 """
 
-import logging
+import asyncio
+import contextlib
 import signal
-import time
 
-from app.config import get_settings
+from app.core.config import get_settings
+from app.core.container import Container, build_container
+from app.core.observability import configure_observability, get_logger
+from app.engine.commands import CommandListener, EngineCommand
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
-log = logging.getLogger("worker")
-
-_running = True
-
-
-def _stop(*_: object) -> None:
-    global _running
-    _running = False
+log = get_logger("worker")
 
 
-def main() -> None:
-    signal.signal(signal.SIGTERM, _stop)
-    signal.signal(signal.SIGINT, _stop)
-    tick = get_settings().engine_tick_seconds
-    log.info("Motore avviato, un ciclo ogni %s secondi", tick)
-    while _running:
-        # Qui il motore eseguirà Engine.run_cycle() per ogni bot attivo.
-        log.info("Ciclo del motore: nessun bot attivo")
-        for _ in range(tick):
-            if not _running:
-                break
-            time.sleep(1)
-    log.info("Motore fermato")
+async def handle_command(command: EngineCommand) -> None:
+    # I bot arrivano nelle prossime fasi: per ora il comando viene solo registrato.
+    log.info(
+        "engine.command_received", command_id=command.id, kind=command.kind.value, payload=command.payload
+    )
+
+
+async def heartbeat(container: Container, stop: asyncio.Event) -> None:
+    tick = container.settings.engine_tick_seconds
+    while not stop.is_set():
+        log.info("engine.tick", active_bots=0, at=container.clock.now().isoformat())
+        with contextlib.suppress(TimeoutError):
+            await asyncio.wait_for(stop.wait(), timeout=tick)
+
+
+async def main() -> None:
+    settings = get_settings()
+    configure_observability(
+        level=settings.log_level, json_logs=settings.is_production, otel_console=settings.otel_console
+    )
+    container = build_container(settings)
+    stop = asyncio.Event()
+    loop = asyncio.get_running_loop()
+    for sig in (signal.SIGTERM, signal.SIGINT):
+        loop.add_signal_handler(sig, stop.set)
+
+    listener = CommandListener(
+        container.session_factory, settings.database_url, handle_command, container.clock
+    )
+    log.info("engine.started", tick_seconds=settings.engine_tick_seconds)
+    try:
+        await asyncio.gather(listener.run(stop), heartbeat(container, stop))
+    finally:
+        await container.close()
+        log.info("engine.stopped")
 
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())

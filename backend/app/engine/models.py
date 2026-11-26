@@ -1,27 +1,25 @@
-"""Dati che passano tra i livelli del motore."""
+"""Dati che passano tra i livelli del motore.
+
+Sono dataclass immutabili (`frozen`, `slots`): veloci nel backtest e
+controllate da mypy. La validazione dei dati esterni avviene prima, ai bordi.
+"""
 
 from dataclasses import dataclass, field
 from datetime import datetime
 from decimal import Decimal
-from enum import Enum
+from enum import StrEnum
+
+from app.core.types import PortfolioId, Symbol, Timeframe
 
 
-class Side(str, Enum):
+class Side(StrEnum):
     LONG = "long"
     SHORT = "short"
 
 
-class TimeframeBlock(str, Enum):
-    """I tre blocchi di timeframe della specifica funzionale."""
-
-    FAST = "fast"  # 1-3 minuti
-    MEDIUM = "medium"  # 5-30 minuti
-    SLOW = "slow"  # da 1 ora a 1 giorno
-
-
-@dataclass(frozen=True)
+@dataclass(frozen=True, slots=True)
 class Candle:
-    symbol: str
+    symbol: Symbol
     open_time: datetime
     open: Decimal
     high: Decimal
@@ -30,29 +28,29 @@ class Candle:
     volume: Decimal
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, slots=True)
 class MarketData:
-    symbol: str
-    timeframe: str
-    candles: list[Candle]
+    symbol: Symbol
+    timeframe: Timeframe
+    candles: tuple[Candle, ...]
 
     @property
     def last_price(self) -> Decimal:
         return self.candles[-1].close
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, slots=True)
 class Signal:
     """Quando entrare e in che direzione. `side=None` significa nessun segnale."""
 
-    symbol: str
+    symbol: Symbol
     side: Side | None
     reason: str = ""
 
 
-@dataclass
+@dataclass(frozen=True, slots=True)
 class Position:
-    symbol: str
+    symbol: Symbol
     side: Side
     quantity: Decimal
     entry_price: Decimal
@@ -60,24 +58,24 @@ class Position:
     opened_at: datetime
 
 
-@dataclass
+@dataclass(frozen=True, slots=True)
 class PortfolioState:
-    portfolio_id: int
+    portfolio_id: PortfolioId
     capital: Decimal
     allocated_capital: Decimal = Decimal("0")
     all_time_high: Decimal = Decimal("0")
-    open_positions: list[Position] = field(default_factory=list)
+    open_positions: tuple[Position, ...] = field(default_factory=tuple)
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, slots=True)
 class RiskAssessment:
     can_open: bool
     reason: str = ""
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, slots=True)
 class OrderRequest:
-    symbol: str
+    symbol: Symbol
     side: Side
     quantity: Decimal
     leverage: int

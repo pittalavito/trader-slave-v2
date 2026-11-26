@@ -62,7 +62,7 @@ window.ROADMAP = {
       }
     },
     {
-      status: "doing",
+      status: "done",
       title: { it: "Architettura backend", en: "Backend architecture" },
       goal: {
         it: "Decidere una volta per tutte struttura e librerie del backend, e prepararne lo scheletro, così ogni fase successiva aggiunge pezzi senza rifare le fondamenta.",
@@ -71,11 +71,11 @@ window.ROADMAP = {
       tasks: [
         { s: "done", it: "Proposta di architettura: struttura delle cartelle, librerie, database, comunicazione tra API e motore", en: "Architecture proposal: folder layout, libraries, database, communication between API and engine" },
         { s: "done", it: "Scelte decise insieme a Vito (<a href=\"https://github.com/pittalavito/trader-slave-v2/blob/main/docs/architettura-backend.md\">documento</a>)", en: "Choices made together with Vito (<a href=\"https://github.com/pittalavito/trader-slave-v2/blob/main/docs/architettura-backend.md\">document</a>, in Italian)" },
-        { it: "Gestione dipendenze, controlli di stile e di tipo, test con un database vero", en: "Dependency management, lint and type checks, tests against a real database" },
-        { it: "Database con migrazioni versionate e prime tabelle", en: "Database with versioned migrations and the first tables" },
-        { it: "Struttura a moduli per area (mercato, strategie, backtest, portafogli, utenti) con il motore a sei livelli", en: "Module layout by area (market, strategies, backtest, portfolios, users) with the six-layer engine" },
-        { it: "Collegamenti verso Kraken e Solana dietro interfacce comuni, sostituibili da versioni simulate", en: "Kraken and Solana connections behind common interfaces, replaceable by simulated versions" },
-        { it: "Configurazione, log strutturati e gestione sicura dei segreti", en: "Configuration, structured logs and safe secret handling" }
+        { s: "done", it: "Gestione dipendenze, controlli di stile e di tipo, test con un database vero", en: "Dependency management, lint and type checks, tests against a real database" },
+        { s: "done", it: "Database con migrazioni versionate e prime tabelle", en: "Database with versioned migrations and the first tables" },
+        { s: "done", it: "Struttura a moduli per area (mercato, strategie, backtest, portafogli, utenti) con il motore a sei livelli", en: "Module layout by area (market, strategies, backtest, portfolios, users) with the six-layer engine" },
+        { s: "done", it: "Collegamenti verso Kraken e Solana dietro interfacce comuni, sostituibili da versioni simulate", en: "Kraken and Solana connections behind common interfaces, replaceable by simulated versions" },
+        { s: "done", it: "Configurazione, log strutturati e gestione sicura dei segreti", en: "Configuration, structured logs and safe secret handling" }
       ],
       exit: {
         it: "Il documento di architettura è approvato e lo scheletro del backend parte in locale con Docker, con test e controlli verdi.",
@@ -83,10 +83,11 @@ window.ROADMAP = {
       }
     },
     {
+      status: "paused",
       title: { it: "Architettura frontend", en: "Frontend architecture" },
       goal: {
-        it: "Decidere struttura e librerie del frontend React e prepararne lo scheletro.",
-        en: "Decide the React frontend structure and libraries and build its skeleton."
+        it: "Decidere struttura e librerie del frontend React e prepararne lo scheletro. In pausa per scelta: per ora si lavora sul backend.",
+        en: "Decide the React frontend structure and libraries and build its skeleton. On hold by choice: we focus on the backend for now."
       },
       tasks: [
         { it: "Proposta di architettura: routing, chiamate all'API, gestione dello stato, componenti grafici, grafici delle candele", en: "Architecture proposal: routing, API calls, state management, UI components, candle charts" },
@@ -101,6 +102,7 @@ window.ROADMAP = {
       }
     },
     {
+      status: "next",
       title: { it: "Dati di mercato", en: "Market data" },
       goal: {
         it: "Avere nel database le candele storiche e aggiornate dei mercati che useremo, per tutti e tre i blocchi di timeframe.",

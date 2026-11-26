@@ -1,11 +1,15 @@
 services:
   db:
-    image: postgres:16-alpine
+    # PostgreSQL con TimescaleDB per le serie temporali delle candele.
+    image: timescale/timescaledb:2.17.2-pg16
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-trader}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?imposta POSTGRES_PASSWORD nel file .env}
       POSTGRES_DB: ${POSTGRES_DB:-trader}
+    # Raggiungibile solo dalla macchina stessa: serve per sviluppo e test in locale.
+    ports:
+      - "127.0.0.1:5432:5432"
     volumes:
       - db-data:/var/lib/postgresql/data
     healthcheck:
@@ -35,6 +39,9 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      # Il motore parte dopo l'API, che applica le migrazioni.
+      api:
+        condition: service_started
 
   web:
     build:

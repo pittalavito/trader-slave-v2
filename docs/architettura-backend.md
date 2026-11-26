@@ -94,6 +94,7 @@ Una gerarchia di eccezioni in `core/errors.py`, ognuna con un codice stabile e u
 | --- | --- | --- |
 | `AppError` | base di tutte | 500 |
 | `ValidationError` | dato in ingresso non valido | 422 |
+| `AuthenticationError` | token mancante, scaduto o sbagliato | 401 |
 | `NotFoundError` | risorsa inesistente | 404 |
 | `PermissionDeniedError` | ruolo o proprietario sbagliato | 403 |
 | `DomainError` | regola violata (es. limite di rischio, leva oltre il tetto) | 409 |
