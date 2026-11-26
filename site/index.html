@@ -74,17 +74,47 @@
   ol.overview a { color: inherit; text-decoration: none; }
   ol.overview a:hover { text-decoration: underline; }
 
-  /* Fasi */
-  .phase {
-    background: var(--card); border: 1px solid var(--line); border-radius: 14px;
-    padding: 20px 22px; margin: 16px 0;
+  /* Strada a serpentina */
+  .hint { margin: 0 0 8px; color: var(--muted); font-size: 0.92rem; }
+  .road { position: relative; padding: 8px 0 24px; }
+  .road-line { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
+  .road-line path { fill: none; stroke-linecap: round; }
+  .road-line .track { stroke: var(--line); stroke-width: 18; }
+  .road-line .fill-done { stroke: var(--done); stroke-width: 18; }
+  .road-line .fill-doing { stroke: var(--doing); stroke-width: 18; opacity: .55; }
+  .road-line .lane { stroke: var(--bg); stroke-width: 2; stroke-dasharray: 8 10; }
+
+  .stop { position: relative; margin: 0; padding: 44px 0; }
+  .stop summary {
+    list-style: none; cursor: pointer; display: flex; align-items: center; gap: 14px;
+    width: max-content; max-width: 62%; position: relative; z-index: 1;
   }
-  .phase.doing { border-color: var(--doing); }
-  .phase-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px; }
-  .phase h3 { margin: 0; font-size: 1.15rem; }
-  .phase h3 .n { color: var(--muted); margin-right: 6px; }
-  .goal { margin: 8px 0 0; }
-  .phase h4 { margin: 16px 0 4px; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+  .stop summary::-webkit-details-marker { display: none; }
+  .stop:nth-of-type(odd) summary { margin-left: 4%; }
+  .stop:nth-of-type(even) summary { margin-left: auto; margin-right: 4%; flex-direction: row-reverse; text-align: right; }
+  .dot {
+    flex: none; width: 52px; height: 52px; border-radius: 50%;
+    display: grid; place-items: center; font-weight: 800; font-size: 1.15rem;
+    background: var(--card); border: 3px solid var(--line); color: var(--muted);
+    transition: transform .15s ease;
+  }
+  .stop summary:hover .dot { transform: scale(1.08); }
+  .stop.done .dot { background: var(--done); border-color: var(--done); color: var(--card); }
+  .stop.doing .dot { border-color: var(--doing); color: var(--doing); background: var(--doing-bg); box-shadow: 0 0 0 6px var(--doing-bg); }
+  .label { display: flex; flex-direction: column; gap: 2px; background: var(--bg); padding: 2px 6px; border-radius: 6px; }
+  .title { font-weight: 700; font-size: 1.05rem; line-height: 1.3; }
+  .meta { display: flex; gap: 8px; align-items: center; }
+  .stop:nth-of-type(even) .meta { justify-content: flex-end; }
+  .count { font-size: 0.8rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .stop[open] .dot { outline: 3px solid var(--accent); outline-offset: 3px; }
+
+  .card {
+    position: relative; z-index: 1; margin: 14px 0 0;
+    background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px 20px;
+    box-shadow: 0 6px 20px rgba(0,0,0,.06);
+  }
+  .goal { margin: 0; }
+  .card h4 { margin: 16px 0 4px; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
   ul.tasks { list-style: none; padding: 0; margin: 0; }
   ul.tasks li { position: relative; padding-left: 1.6rem; margin: 3px 0; }
   ul.tasks li::before {
@@ -103,6 +133,12 @@
     margin: 14px 0 0; padding: 8px 12px; border-radius: 8px;
     background: var(--guess-bg); color: var(--guess); font-size: 0.92rem;
   }
+  @media (max-width: 600px) {
+    .stop summary { max-width: 82%; }
+    .dot { width: 44px; height: 44px; font-size: 1rem; }
+    .title { font-size: 0.98rem; }
+  }
+  @media (prefers-reduced-motion: reduce) { .dot { transition: none; } }
   ul.plain { padding-left: 1.2rem; margin: 0; }
   ul.plain li { margin: 4px 0; }
   footer { margin-top: 56px; color: var(--muted); font-size: 0.9rem; border-top: 1px solid var(--line); padding-top: 16px; }
@@ -147,13 +183,16 @@
 
 <h2>Le fasi</h2>
 
-<!-- Per aggiornare lo stato: cambia la classe dell'attività (done / doing) e il badge della fase. -->
+<p class="hint">Clicca su una tappa per vedere attività e condizione di uscita.</p>
 
-<section class="phase doing" id="fase-0">
-  <div class="phase-head">
-    <h3><span class="n">0</span>Fondamenta e server</h3>
-    <span class="badge b-doing">In corso</span>
-  </div>
+<!-- Per aggiornare lo stato: cambia la classe dell'attività (done / doing), la classe della tappa
+     (stop done / doing / todo) e il suo badge. Il conteggio x/y si aggiorna da solo. -->
+<div class="road" id="road">
+<svg class="road-line" aria-hidden="true"></svg>
+
+<details class="stop doing" id="fase-0">
+  <summary><span class="dot">0</span><span class="label"><span class="title">Fondamenta e server</span><span class="meta"><span class="badge b-doing">In corso</span><span class="count">4/8</span></span></span></summary>
+  <div class="card">
   <p class="goal">Avere le decisioni scritte, lo scheletro dell'app e un server che si aggiorna da solo a ogni modifica.</p>
   <h4>Attività</h4>
   <ul class="tasks">
@@ -168,13 +207,12 @@
   </ul>
   <h4>Finita quando</h4>
   <p class="exit">Un merge su <code>main</code> aggiorna il server da solo e la pagina dell'app risponde con lo stato dell'API "ok".</p>
-</section>
-
-<section class="phase" id="fase-1">
-  <div class="phase-head">
-    <h3><span class="n">1</span>Dati di mercato</h3>
-    <span class="badge b-todo">Da fare</span>
   </div>
+</details>
+
+<details class="stop todo" id="fase-1">
+  <summary><span class="dot">1</span><span class="label"><span class="title">Dati di mercato</span><span class="meta"><span class="badge b-todo">Da fare</span><span class="count">0/6</span></span></span></summary>
+  <div class="card">
   <p class="goal">Avere nel database le candele storiche e aggiornate dei mercati che useremo, per tutti e tre i blocchi di timeframe.</p>
   <h4>Attività</h4>
   <ul class="tasks">
@@ -188,13 +226,12 @@
   <h4>Finita quando</h4>
   <p class="exit">Ci sono almeno 12 mesi di candele a 1 minuto per i mercati di partenza, senza buchi, e il worker le aggiorna da solo.</p>
   <p class="guess"><strong>Ipotesi:</strong> mercati di partenza SOL, BTC ed ETH; 12 mesi di storico; per Solana una fonte di dati come GeckoTerminal o Birdeye. Da scegliere all'inizio della fase.</p>
-</section>
-
-<section class="phase" id="fase-2">
-  <div class="phase-head">
-    <h3><span class="n">2</span>Motore di backtest</h3>
-    <span class="badge b-todo">Da fare</span>
   </div>
+</details>
+
+<details class="stop todo" id="fase-2">
+  <summary><span class="dot">2</span><span class="label"><span class="title">Motore di backtest</span><span class="meta"><span class="badge b-todo">Da fare</span><span class="count">0/8</span></span></span></summary>
+  <div class="card">
   <p class="goal">Provare qualsiasi strategia sui dati del passato con costi realistici e leggere risultati di cui ci si può fidare.</p>
   <h4>Attività</h4>
   <ul class="tasks">
@@ -209,13 +246,12 @@
   </ul>
   <h4>Finita quando</h4>
   <p class="exit">Lanciamo un backtest della strategia a pattern su 12 mesi, con costi e leva 2x-3x, e otteniamo un report completo. Il risultato può anche essere negativo: conta che sia affidabile.</p>
-</section>
-
-<section class="phase" id="fase-3">
-  <div class="phase-head">
-    <h3><span class="n">3</span>Utenti, portafogli e ruoli</h3>
-    <span class="badge b-todo">Da fare</span>
   </div>
+</details>
+
+<details class="stop todo" id="fase-3">
+  <summary><span class="dot">3</span><span class="label"><span class="title">Utenti, portafogli e ruoli</span><span class="meta"><span class="badge b-todo">Da fare</span><span class="count">0/6</span></span></span></summary>
+  <div class="card">
   <p class="goal">Più utenti, ognuno con i suoi portafogli, completamente separati tra loro.</p>
   <h4>Attività</h4>
   <ul class="tasks">
@@ -228,13 +264,12 @@
   </ul>
   <h4>Finita quando</h4>
   <p class="exit">Due utenti di prova creano i loro portafogli simulati e nessuno dei due vede quelli dell'altro; un osservatore vede solo il portafoglio a cui è invitato.</p>
-</section>
-
-<section class="phase" id="fase-4">
-  <div class="phase-head">
-    <h3><span class="n">4</span>Dashboard web</h3>
-    <span class="badge b-todo">Da fare</span>
   </div>
+</details>
+
+<details class="stop todo" id="fase-4">
+  <summary><span class="dot">4</span><span class="label"><span class="title">Dashboard web</span><span class="meta"><span class="badge b-todo">Da fare</span><span class="count">0/5</span></span></span></summary>
+  <div class="card">
   <p class="goal">Vedere e comandare tutto dal browser, senza toccare il codice.</p>
   <h4>Attività</h4>
   <ul class="tasks">
@@ -246,13 +281,12 @@
   </ul>
   <h4>Finita quando</h4>
   <p class="exit">Un utente fa tutto il percorso dal browser: crea un portafoglio, lancia un backtest e ne legge i risultati.</p>
-</section>
-
-<section class="phase" id="fase-5">
-  <div class="phase-head">
-    <h3><span class="n">5</span>Simulazione 24 ore su 24 (paper trading)</h3>
-    <span class="badge b-todo">Da fare</span>
   </div>
+</details>
+
+<details class="stop todo" id="fase-5">
+  <summary><span class="dot">5</span><span class="label"><span class="title">Simulazione 24 ore su 24 (paper trading)</span><span class="meta"><span class="badge b-todo">Da fare</span><span class="count">0/7</span></span></span></summary>
+  <div class="card">
   <p class="goal">Le strategie girano sui prezzi reali di oggi, sempre accese, senza mandare ordini veri.</p>
   <h4>Attività</h4>
   <ul class="tasks">
@@ -266,13 +300,12 @@
   </ul>
   <h4>Finita quando</h4>
   <p class="exit">La strategia a pattern gira in simulazione per una settimana intera senza interruzioni e i suoi risultati sono coerenti con il backtest dello stesso periodo.</p>
-</section>
-
-<section class="phase" id="fase-6">
-  <div class="phase-head">
-    <h3><span class="n">6</span>Notifiche Telegram</h3>
-    <span class="badge b-todo">Da fare</span>
   </div>
+</details>
+
+<details class="stop todo" id="fase-6">
+  <summary><span class="dot">6</span><span class="label"><span class="title">Notifiche Telegram</span><span class="meta"><span class="badge b-todo">Da fare</span><span class="count">0/3</span></span></span></summary>
+  <div class="card">
   <p class="goal">Sapere cosa succede senza aprire la dashboard.</p>
   <h4>Attività</h4>
   <ul class="tasks">
@@ -283,13 +316,12 @@
   <h4>Finita quando</h4>
   <p class="exit">Ogni evento importante della simulazione arriva su Telegram entro pochi secondi, e ogni giorno arriva il riepilogo.</p>
   <p class="guess"><strong>Ipotesi:</strong> nella specifica le notifiche sono previste per la seconda versione; le metto prima dei soldi veri perché l'avviso di connessione persa serve quando ci sono posizioni aperte.</p>
-</section>
-
-<section class="phase" id="fase-7">
-  <div class="phase-head">
-    <h3><span class="n">7</span>Regole delle strategie A e B</h3>
-    <span class="badge b-todo">Da fare</span>
   </div>
+</details>
+
+<details class="stop todo" id="fase-7">
+  <summary><span class="dot">7</span><span class="label"><span class="title">Regole delle strategie A e B</span><span class="meta"><span class="badge b-todo">Da fare</span><span class="count">0/4</span></span></span></summary>
+  <div class="card">
   <p class="goal">Definire le regole di entrata e uscita delle due strategie e dimostrare con i dati che funzionano.</p>
   <h4>Attività</h4>
   <ul class="tasks">
@@ -301,13 +333,12 @@
   <h4>Finita quando</h4>
   <p class="exit">Ogni strategia ha un backtest positivo al netto dei costi e un periodo di simulazione con risultati coerenti, e Vito decide di passarla ai soldi veri.</p>
   <p class="guess"><strong>Ipotesi:</strong> le regole sono rimandate a questa fase; si parte dalla strategia a pattern e da strategie note. Durata minima della simulazione proposta: 4 settimane. Questa fase può iniziare in parallelo alle fasi 3-6, appena il backtest è pronto.</p>
-</section>
-
-<section class="phase" id="fase-8">
-  <div class="phase-head">
-    <h3><span class="n">8</span>Soldi veri: strategia B su Kraken</h3>
-    <span class="badge b-todo">Da fare</span>
   </div>
+</details>
+
+<details class="stop todo" id="fase-8">
+  <summary><span class="dot">8</span><span class="label"><span class="title">Soldi veri: strategia B su Kraken</span><span class="meta"><span class="badge b-todo">Da fare</span><span class="count">0/6</span></span></span></summary>
+  <div class="card">
   <p class="goal">La strategia B opera con soldi veri sul conto Kraken, con un capitale piccolo e tutti i freni attivi.</p>
   <h4>Attività</h4>
   <ul class="tasks">
@@ -321,13 +352,12 @@
   <h4>Finita quando</h4>
   <p class="exit">La strategia B gira per un mese con soldi veri, senza differenze inspiegate tra i conti dell'app e quelli di Kraken.</p>
   <p class="guess"><strong>Ipotesi:</strong> metto Kraken prima di Solana perché le chiavi API si possono limitare all'IP del server e gli ordini sono più semplici da gestire. L'ordine si può invertire.</p>
-</section>
-
-<section class="phase" id="fase-9">
-  <div class="phase-head">
-    <h3><span class="n">9</span>Soldi veri: strategia A su Solana</h3>
-    <span class="badge b-todo">Da fare</span>
   </div>
+</details>
+
+<details class="stop todo" id="fase-9">
+  <summary><span class="dot">9</span><span class="label"><span class="title">Soldi veri: strategia A su Solana</span><span class="meta"><span class="badge b-todo">Da fare</span><span class="count">0/5</span></span></span></summary>
+  <div class="card">
   <p class="goal">La strategia A compra e vende spot su un DEX Solana dal wallet dedicato del portafoglio.</p>
   <h4>Attività</h4>
   <ul class="tasks">
@@ -340,13 +370,12 @@
   <h4>Finita quando</h4>
   <p class="exit">La strategia A gira per un mese con soldi veri e il saldo del wallet corrisponde sempre a quello dell'app.</p>
   <p class="guess"><strong>Ipotesi:</strong> gli scambi passano da un aggregatore come Jupiter, che trova il prezzo migliore tra i DEX Solana. Da decidere all'inizio della fase.</p>
-</section>
-
-<section class="phase" id="fase-10">
-  <div class="phase-head">
-    <h3><span class="n">10</span>Apertura a utenti esterni e abbonamenti</h3>
-    <span class="badge b-todo">Da fare</span>
   </div>
+</details>
+
+<details class="stop todo" id="fase-10">
+  <summary><span class="dot">10</span><span class="label"><span class="title">Apertura a utenti esterni e abbonamenti</span><span class="meta"><span class="badge b-todo">Da fare</span><span class="count">0/6</span></span></span></summary>
+  <div class="card">
   <p class="goal">Far usare l'app a utenti paganti, ognuno sui propri conti.</p>
   <h4>Attività</h4>
   <ul class="tasks">
@@ -359,7 +388,9 @@
   </ul>
   <h4>Finita quando</h4>
   <p class="exit">Un utente esterno si registra, collega i suoi conti, paga l'abbonamento e usa l'app senza il nostro aiuto.</p>
-</section>
+  </div>
+</details>
+</div>
 
 <h2>Decisioni rimandate</h2>
 <ul class="plain">
@@ -383,5 +414,53 @@
 </footer>
 
 </div>
+<script>
+(function () {
+  var road = document.getElementById('road');
+  var svg = road.querySelector('.road-line');
+  var stops = Array.prototype.slice.call(road.querySelectorAll('.stop'));
+  var NS = 'http://www.w3.org/2000/svg';
+
+  function draw() {
+    var box = road.getBoundingClientRect();
+    var pts = stops.map(function (st) {
+      var r = st.querySelector('.dot').getBoundingClientRect();
+      return { x: r.left + r.width / 2 - box.left, y: r.top + r.height / 2 - box.top,
+               s: st.classList.contains('done') ? 'done' : st.classList.contains('doing') ? 'doing' : 'todo' };
+    });
+    while (svg.firstChild) svg.removeChild(svg.firstChild);
+    var layers = { track: [], fill: [], lane: [] };
+    for (var i = 0; i < pts.length - 1; i++) {
+      var a = pts[i], b = pts[i + 1], k = (b.y - a.y) * 0.9;
+      // Curva a S con tangenti verticali: la strada scende da una tappa e gira verso la successiva.
+      var d = 'M' + a.x + ' ' + a.y + ' C' + a.x + ' ' + (a.y + k) + ' ' + b.x + ' ' + (b.y - k) + ' ' + b.x + ' ' + b.y;
+      layers.track.push([d, 'track']);
+      // Il tratto si colora se la tappa da cui parte è finita (verde) o in corso (arancione).
+      if (a.s !== 'todo') layers.fill.push([d, 'fill-' + a.s]);
+      layers.lane.push([d, 'lane']);
+    }
+    ['track', 'fill', 'lane'].forEach(function (name) {
+      layers[name].forEach(function (seg) {
+        var path = document.createElementNS(NS, 'path');
+        path.setAttribute('d', seg[0]);
+        path.setAttribute('class', seg[1]);
+        svg.appendChild(path);
+      });
+    });
+  }
+
+  function openHash() {
+    var el = location.hash && document.getElementById(location.hash.slice(1));
+    if (el && el.tagName === 'DETAILS') { el.open = true; el.scrollIntoView({ block: 'start' }); }
+  }
+
+  stops.forEach(function (st) { st.addEventListener('toggle', draw); });
+  window.addEventListener('resize', draw);
+  window.addEventListener('hashchange', openHash);
+  openHash();
+  draw();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(draw);
+})();
+</script>
 </body>
 </html>
